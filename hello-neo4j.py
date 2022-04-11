@@ -14,11 +14,22 @@ class HelloWorldExample:
             greeting = session.write_transaction(self._create_and_return_greeting, message)
             print(greeting)
 
+    def count_nodes(self):
+        with self.driver.session() as session:
+            count = session.read_transaction(self._count_nodes)
+            print(f"There are {count} items")
+
     @staticmethod
     def _create_and_return_greeting(tx, message):
         result = tx.run("CREATE (a:Greeting) "
                         "SET a.message = $message "
                         "RETURN a.message + ', from node ' + id(a)", message=message)
+        return result.single()[0]
+
+    @staticmethod
+    def _count_nodes(tx):
+        result = tx.run("MATCH (n) "
+                        "RETURN count(n)")
         return result.single()[0]
 
 
@@ -29,4 +40,5 @@ if __name__ == "__main__":
         os.getenv('NEO4J_PASSWORD'),
     )
     greeter.print_greeting("hello, world")
+    greeter.count_nodes()
     greeter.close()
