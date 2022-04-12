@@ -26,7 +26,7 @@ def get_db():
 
 @app.route('/')
 def hello():
-    return f'Hello, World!'
+    return f'Hello to the neo4j api'
 
 
 @app.route("/counts")
