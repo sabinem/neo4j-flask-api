@@ -37,14 +37,19 @@ def get_counts():
         count = result.single()[0]
         return count
     def get_dataset_count_for_group(tx, group):
-        result = tx.run("MATCH (Group {name: $group})<-[:hasTheme]-(d:Dataset) "
+        result = tx.run("MATCH (Group {group_name: $group})<-[:HAS_THEME]-(d:Dataset) "
                         "RETURN count(d) ", group=group)
         count = result.single()[0]
         return count
     def get_groups(tx):
         result = tx.run("MATCH (g: Group) "
-                        "RETURN g.name as name ")
+                        "RETURN g.group_name as name ")
         return result.value('name')
+    def get_showcase_count(tx):
+        result = tx.run("MATCH (s: Showcase) "
+                        "RETURN count(s) ")
+        count = result.single()[0]
+        return count
 
     db = get_db()
     groups = db.read_transaction(get_groups)
@@ -53,12 +58,14 @@ def get_counts():
         group_count = db.read_transaction(get_dataset_count_for_group, request.args.get("group", group))
         group_counts[group] = group_count
     dataset_count = db.read_transaction(get_dataset_count)
+    showcase_count = db.read_transaction(get_showcase_count)
     return Response(json.dumps(
         {
             "help": "ckan counts",
             "success": True,
             "result": {
                 'total_dataset_count': dataset_count,
+                'showcase_count': showcase_count,
                 'groups': group_counts,
             }
         }), mimetype="application/json")
