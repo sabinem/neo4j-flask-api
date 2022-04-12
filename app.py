@@ -4,15 +4,15 @@ from flask import Flask, g, Response, request
 from neo4j import GraphDatabase
 from dotenv import load_dotenv
 
-load_dotenv()
+from dotenv import dotenv_values
 
 app = Flask(__name__)
 
-
-url = os.getenv('NEO4J_URI')
-username = os.getenv('NEO4J_USERNAME')
-password = os.getenv('NEO4J_PASSWORD')
-database = os.getenv('NEO4J_DATABASE')
+config = dotenv_values(".env")
+url = config.get('NEO4J_URI')
+username =config.get('NEO4J_USERNAME')
+password = config.get('NEO4J_PASSWORD')
+database = config.get('NEO4J_DATABASE')
 driver = GraphDatabase.driver(url, auth=(username, password))
 driver.verify_connectivity()
 
