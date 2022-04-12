@@ -4,10 +4,11 @@ from flask import Flask, g, Response, request
 from neo4j import GraphDatabase
 from dotenv import load_dotenv
 
-from dotenv import dotenv_values
+from dotenv import dotenv_values, load_dotenv
 
 app = Flask(__name__)
 
+load_dotenv()
 config = dotenv_values(".env")
 url = config.get('NEO4J_URI')
 username =config.get('NEO4J_USERNAME')
