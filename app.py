@@ -45,6 +45,11 @@ def get_counts():
                         "RETURN count(s) ")
         count = result.single()[0]
         return count
+    def get_organization_count(tx):
+        result = tx.run("MATCH (o: Organization) "
+                        "RETURN count(o) ")
+        count = result.single()[0]
+        return count
 
     db = get_db()
     groups = db.read_transaction(get_groups)
@@ -54,6 +59,7 @@ def get_counts():
         group_counts[group] = group_count
     dataset_count = db.read_transaction(get_dataset_count)
     showcase_count = db.read_transaction(get_showcase_count)
+    organization_count = db.read_transaction(get_organization_count)
     return Response(json.dumps(
         {
             "help": "ckan counts",
@@ -61,7 +67,8 @@ def get_counts():
             "result": {
                 'total_dataset_count': dataset_count,
                 'showcase_count': showcase_count,
-                'group_counts': group_counts,
+                'groups': group_counts,
+                'organization_count': organization_count,
             }
         }), mimetype="application/json")
 
@@ -74,20 +81,27 @@ def get_groups():
                         "g.title_fr as title_fr, g.title_en as title_en, "
                         "g.title_it as title_it")
         return result.values('name', 'title_de', 'title_fr', 'title_en', 'title_it')
-
+    def get_dataset_count(tx, group):
+        result = tx.run("MATCH (Group {group_name: $group})<-[:HAS_THEME]-(d:Dataset) "
+                        "RETURN count(d) ", group=group)
+        count = result.single()[0]
+        return count
     db = get_db()
     categories = db.read_transaction(get_categories)
     list_groups = []
     for category in categories:
+        name = category[0]
+        package_count = db.read_transaction(get_dataset_count, request.args.get("group", name))
         list_groups.append(
             {
-                'name': category[0],
+                'name': name,
                 'title': {
                     'de': category[1],
                     'fr': category[2],
                     'en': category[3],
                     'it': category[4],
-                }
+                },
+                'package_count': package_count,
             }
         )
     return Response(json.dumps(
