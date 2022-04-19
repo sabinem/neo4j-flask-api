@@ -24,11 +24,6 @@ def get_db():
     return g.neo4j_db
 
 
-@app.route('/')
-def hello():
-    return f'Hello to the neo4j api'
-
-
 @app.route("/counts")
 def get_counts():
     def get_dataset_count(tx):
@@ -44,7 +39,7 @@ def get_counts():
     def get_groups(tx):
         result = tx.run("MATCH (g: Group) "
                         "RETURN g.group_name as name ")
-        return result.value('name')
+        return result.value('name', 'title_de')
     def get_showcase_count(tx):
         result = tx.run("MATCH (s: Showcase) "
                         "RETURN count(s) ")
@@ -66,6 +61,38 @@ def get_counts():
             "result": {
                 'total_dataset_count': dataset_count,
                 'showcase_count': showcase_count,
-                'groups': group_counts,
+                'group_counts': group_counts,
             }
+        }), mimetype="application/json")
+
+
+@app.route("/groups")
+def get_groups():
+    def get_categories(tx):
+        result = tx.run("MATCH (g:Group) "
+                        "RETURN g.group_name as name, g.title_de as title_de, "
+                        "g.title_fr as title_fr, g.title_en as title_en, "
+                        "g.title_it as title_it")
+        return result.values('name', 'title_de', 'title_fr', 'title_en', 'title_it')
+
+    db = get_db()
+    categories = db.read_transaction(get_categories)
+    list_groups = []
+    for category in categories:
+        list_groups.append(
+            {
+                'name': category[0],
+                'title': {
+                    'de': category[1],
+                    'fr': category[2],
+                    'en': category[3],
+                    'it': category[4],
+                }
+            }
+        )
+    return Response(json.dumps(
+        {
+            "help": "group_list",
+            "success": True,
+            "result": list_groups
         }), mimetype="application/json")
