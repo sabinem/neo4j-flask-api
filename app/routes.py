@@ -88,12 +88,12 @@ def get_organizations():
     dict_organizations = {
         organization[0]: {
             'name': organization[0],
-            'title': {
+            'title': json.dumps({
                 'de': organization[1],
                 'fr': organization[2],
                 'en': organization[3],
                 'it': organization[4],
-            },
+            }),
         }
         for organization in organizations
     }
