@@ -5,6 +5,8 @@ import json
 from flask import Flask, g, Response, request
 from neo4j import GraphDatabase
 from dotenv import load_dotenv
+from queries import counts as q_counts
+from queries import groups as q_groups
 
 from dotenv import dotenv_values, load_dotenv
 
@@ -27,40 +29,15 @@ def get_db():
 
 @app.route("/counts")
 def get_counts():
-    def get_dataset_count(tx):
-        result = tx.run("MATCH (d:Dataset) "
-                        "RETURN count(d)")
-        count = result.single()[0]
-        return count
-    def get_dataset_count_for_group(tx, group):
-        result = tx.run("MATCH (Group {group_name: $group})<-[:HAS_THEME]-(d:Dataset) "
-                        "RETURN count(d) ", group=group)
-        count = result.single()[0]
-        return count
-    def get_groups(tx):
-        result = tx.run("MATCH (g: Group) "
-                        "RETURN g.group_name as name ")
-        return result.value('name', 'title_de')
-    def get_showcase_count(tx):
-        result = tx.run("MATCH (s: Showcase) "
-                        "RETURN count(s) ")
-        count = result.single()[0]
-        return count
-    def get_organization_count(tx):
-        result = tx.run("MATCH (o: Organization) "
-                        "RETURN count(o) ")
-        count = result.single()[0]
-        return count
-
     db = get_db()
-    groups = db.read_transaction(get_groups)
+    groups = db.read_transaction(q_counts.get_groups)
     group_counts = {}
     for group in groups:
-        group_count = db.read_transaction(get_dataset_count_for_group, request.args.get("group", group))
+        group_count = db.read_transaction(q_counts.get_dataset_count_for_group, request.args.get("group", group))
         group_counts[group] = group_count
-    dataset_count = db.read_transaction(get_dataset_count)
-    showcase_count = db.read_transaction(get_showcase_count)
-    organization_count = db.read_transaction(get_organization_count)
+    dataset_count = db.read_transaction(q_counts.get_dataset_count)
+    showcase_count = db.read_transaction(q_counts.get_showcase_count)
+    organization_count = db.read_transaction(q_counts.get_organization_count)
     return Response(json.dumps(
         {
             "help": "ckan counts",
@@ -76,23 +53,12 @@ def get_counts():
 
 @app.route("/groups")
 def get_groups():
-    def get_categories(tx):
-        result = tx.run("MATCH (g:Group) "
-                        "RETURN g.group_name as name, g.title_de as title_de, "
-                        "g.title_fr as title_fr, g.title_en as title_en, "
-                        "g.title_it as title_it")
-        return result.values('name', 'title_de', 'title_fr', 'title_en', 'title_it')
-    def get_dataset_count(tx, group):
-        result = tx.run("MATCH (Group {group_name: $group})<-[:HAS_THEME]-(d:Dataset) "
-                        "RETURN count(d) ", group=group)
-        count = result.single()[0]
-        return count
     db = get_db()
-    categories = db.read_transaction(get_categories)
+    categories = db.read_transaction(q_groups.get_categories)
     list_groups = []
     for category in categories:
         name = category[0]
-        package_count = db.read_transaction(get_dataset_count, request.args.get("group", name))
+        package_count = db.read_transaction(q_groups.get_dataset_count, request.args.get("group", name))
         list_groups.append(
             {
                 'name': name,
