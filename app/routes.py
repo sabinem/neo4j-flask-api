@@ -1,3 +1,5 @@
+from app import app
+
 import os
 import json
 from flask import Flask, g, Response, request
@@ -6,7 +8,7 @@ from dotenv import load_dotenv
 
 from dotenv import dotenv_values, load_dotenv
 
-app = Flask(__name__)
+from app import app
 
 load_dotenv()
 config = dotenv_values(".env")
@@ -16,7 +18,6 @@ password = config.get('NEO4J_PASSWORD')
 database = config.get('NEO4J_DATABASE')
 driver = GraphDatabase.driver(url, auth=(username, password))
 driver.verify_connectivity()
-
 
 def get_db():
     if not hasattr(g, "neo4j_db"):
