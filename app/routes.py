@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 from queries import counts as q_counts
 from queries import groups as q_groups
 from queries import organizations as q_organizations
+from queries import showcases as q_showcases
 
 from dotenv import dotenv_values, load_dotenv
 
@@ -116,3 +117,27 @@ def get_organizations():
             "success": True,
             "result": list_organizations
         }), mimetype="application/json")
+
+
+@app.route("/showcases")
+def get_showcases():
+    db = get_db()
+    showcases = db.read_transaction(q_showcases.get_showcases)
+    showcase_count = db.read_transaction(q_counts.get_showcase_count)
+    applications = db.read_transaction(q_showcases.get_applications)
+    groups = db.read_transaction(q_showcases.get_groups)
+    return Response(json.dumps(
+        {
+            "help": "showcase_list",
+            "success": True,
+            "result": {
+                "count": showcase_count,
+                "sort": "core desc, metadata_modified desc",
+                "facets": {
+                    "application": applications,
+                    "groups": groups,
+                },
+                "showcases": showcases,
+            }
+        }), mimetype="application/json")
+
