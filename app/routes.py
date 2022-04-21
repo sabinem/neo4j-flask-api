@@ -126,6 +126,9 @@ def get_showcases():
     showcase_count = db.read_transaction(q_counts.get_showcase_count)
     applications = db.read_transaction(q_showcases.get_applications)
     groups = db.read_transaction(q_showcases.get_groups)
+    tags_detailed = db.read_transaction(q_showcases.get_tags_detail)
+    applications_detailed = db.read_transaction(q_showcases.get_applications_detail)
+    groups_detailed = db.read_transaction(q_showcases.get_groups_detail)
     tags = db.read_transaction(q_showcases.get_tags)
     return Response(json.dumps(
         {
@@ -140,7 +143,20 @@ def get_showcases():
                     "showcase_type": applications,
                 },
                 "results": showcases,
-                "search_facets": "search_facets"
+                "search_facets": {
+                    "showcase_type": {
+                        "items": applications_detailed,
+                        "title": "showcase_type",
+                    },
+                    "groups": {
+                        "items": groups_detailed,
+                        "title": "groups",
+                    },
+                    "tags": {
+                        "items": tags_detailed,
+                        "title": "tags",
+                    },
+                }
             }
         }), mimetype="application/json")
 
