@@ -3,8 +3,42 @@ import json
 def get_showcases(tx):
     result = tx.run("MATCH (s:Showcase) "
                     "RETURN s.showcase_name as name, s.title as title, "
-                    "s.url as url ")
-    return result.values('name', 'title', 'url')
+                    "s.url as url,"
+                    "s.notes as notes,"
+                    "s.showcase_notes_formatted as showcase_notes_formatted,"
+                    "s.image_display_url as image_display_url,"
+                    "s.image_url as image_url ")
+    return [{
+        'name': record['name'],
+        'url': record['url'],
+        'title': record['title'],
+        'showcase_notes_formatted': record['showcase_notes_formatted'],
+        'notes': record['notes'],
+        'image_display_url': record['image_display_url'],
+    } for record in result]
+
+
+def get_datasets_per_showcases_count(tx):
+    result = tx.run("MATCH (s:Showcase) -[r:USES_DATASET]-> (d:Dataset) "
+                    "RETURN s.showcase_name as name, count(d) as count ")
+    return {record['name']: record['count'] for record in result}
+
+
+def get_datasets(tx):
+    result = tx.run("MATCH (s:Showcase) -[r:]- (i:Item)"
+                    "RETURN s.showcase_name as name, s.title as title, "
+                    "s.url as url,"
+                    "s.notes as notes,"
+                    "s.image_url as image_url ")
+    return [{
+        'name': record['name'],
+        'url': record['url'],
+        'title': record['title'],
+        'showcase_notes_formatted': record['notes'],
+        'notes': record['notes'],
+        'image_display_url': record['image_url'],
+    } for record in result]
+
 
 
 def get_applications(tx):

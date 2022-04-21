@@ -123,6 +123,9 @@ def get_organizations():
 def get_showcases():
     db = get_db()
     showcases = db.read_transaction(q_showcases.get_showcases)
+    showcase_dataset_count = db.read_transaction(q_showcases.get_datasets_per_showcases_count)
+    for showcase in showcases:
+        showcase['num_datasets'] = showcase_dataset_count.get(showcase['name'])
     showcase_count = db.read_transaction(q_counts.get_showcase_count)
     applications = db.read_transaction(q_showcases.get_applications)
     groups = db.read_transaction(q_showcases.get_groups)
