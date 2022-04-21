@@ -30,3 +30,10 @@ def get_organization_count(tx):
                     "RETURN count(o) ")
     count = result.single()[0]
     return count
+
+
+def get_labels_count(tx):
+    result = tx.run("CALL db.labels() yield label "
+                    "CALL apoc.cypher.run('match (:`'+label+'`) return count(*) as count', null) yield value"
+                    "return label, value.count as count")
+    return result.values('label', 'count')
