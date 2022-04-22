@@ -24,23 +24,6 @@ def get_datasets_per_showcases_count(tx):
     return {record['name']: record['count'] for record in result}
 
 
-def get_datasets(tx):
-    result = tx.run("MATCH (s:Showcase) -[r:]- (i:Item)"
-                    "RETURN s.showcase_name as name, s.title as title, "
-                    "s.url as url,"
-                    "s.notes as notes,"
-                    "s.image_url as image_url ")
-    return [{
-        'name': record['name'],
-        'url': record['url'],
-        'title': record['title'],
-        'showcase_notes_formatted': record['notes'],
-        'notes': record['notes'],
-        'image_display_url': record['image_url'],
-    } for record in result]
-
-
-
 def get_applications(tx):
     result = tx.run("MATCH (a:Applicationtype)<-[r:HAS_APPLICATION_TYPE]-(s:Showcase) "
                     "RETURN a.application_type_name as application, count(a) as count ")
