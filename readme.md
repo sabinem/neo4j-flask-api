@@ -14,5 +14,6 @@ add the noe4j credentials
 ```commandline
 pipenv shell
 export FLASK_APP=app.py
+export FLASK_ENV=development
 flask run
 ```
