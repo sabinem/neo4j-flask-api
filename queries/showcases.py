@@ -42,6 +42,12 @@ def get_tags(tx):
     return { record["tag"]: record['count'] for record in result }
 
 
+def get_search_result(tx, groups):
+    result = tx.run("MATCH (g:Group)<-[r:HAS_GROUP]-(s:Showcase) "
+                    "RETURN g.group_name as group, count(g) as count ")
+    return { record["group"]: record['count'] for record in result }
+
+
 def get_groups_detail(tx):
     result = tx.run("MATCH (g:Group)<-[r:HAS_GROUP]-(s:Showcase) "
                     "RETURN g.group_name as name, count(g) as count, "
