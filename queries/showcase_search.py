@@ -49,6 +49,8 @@ def get_showcases(tx, showcase_ids, limit, skip):
     for record in result:
         showcase_dict = {}
         for k, v in record['s'].items():
+            if k == 'showcase_name':
+                showcase_dict['name'] = v
             showcase_dict[k] = v
         showcases.append(showcase_dict)
     return showcases

@@ -20,12 +20,12 @@ def search():
         showcase_ids,
         limit,
         skip)
-    showcase_ids_page = [showcase.get('showcase_name') for showcase in showcases]
+    showcase_ids_page = [showcase.get('name') for showcase in showcases]
     showcase_dataset_count = db.read_transaction(
         q_showcase_search.get_datasets_per_showcases_count,
         showcase_ids_page)
     for showcase in showcases:
-        showcase['num_datasets'] = showcase_dataset_count.get(showcase['showcase_name'])
+        showcase['num_datasets'] = showcase_dataset_count.get(showcase['name'])
     showcase_type_search_facets, showcase_type_facets = db.read_transaction(
         q_showcase_search.get_showcase_type_facets,
         showcase_ids
