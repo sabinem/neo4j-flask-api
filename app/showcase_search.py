@@ -8,8 +8,8 @@ from .routes import get_db
 @app.route("/showcase-search")
 def search():
     db = get_db()
-    limit = helpers.PAGE_SIZE
-    skip = helpers.get_pagination(request.args.get('page'))
+    limit = request.args.get('rows', 20)
+    skip = request.args.get('start', 0)
     showcase_ids = db.read_transaction(
         q_showcase_search.search,
         request.args)
