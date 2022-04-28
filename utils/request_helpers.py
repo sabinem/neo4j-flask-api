@@ -10,10 +10,14 @@ def analyze_fq(fq_lucene):
     fq_dict = {}
     fq_tree = parser.parse(fq_lucene)
     for item in fq_tree.children:
-        facet = item.name
-        if facet in showcase_facets:
-            op = item.expr.expr
-            if type(op) == tree.AndOperation:
-                operands = [y.value for y in op.operands]
-                fq_dict[facet] = operands
+        if hasattr(item, 'name'):
+            facet = item.name
+            if facet in showcase_facets:
+                op = item.expr.expr
+                if type(op) == tree.Word:
+                    print(op.__dict__)
+                    fq_dict[facet] = [op.value]
+                elif type(op) == tree.AndOperation:
+                    operands = [y.value for y in op.operands]
+                    fq_dict[facet] = operands
     return fq_dict
