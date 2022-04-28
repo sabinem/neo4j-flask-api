@@ -5,6 +5,8 @@ from luqum import tree
 showcase_facets = ['tags', 'groups', 'showcase_type']
 
 def analyze_fq(fq_lucene):
+    if not fq_lucene:
+        return {}
     fq_dict = {}
     fq_tree = parser.parse(fq_lucene)
     for item in fq_tree.children:
