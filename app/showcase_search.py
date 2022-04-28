@@ -2,7 +2,7 @@ import json
 from flask import Response, request
 from app import app
 from queries import showcase_search as q_showcase_search
-from utils import request_helpers as helpers
+from utils import request_helpers as r_helpers
 from .routes import get_db
 
 @app.route("/showcase-search")
@@ -10,6 +10,9 @@ def search():
     db = get_db()
     limit = request.args.get('rows', 20)
     skip = request.args.get('start', 0)
+    fq = r_helpers.analyze_fq(request.args.get('fq'))
+    print(fq)
+
     showcase_ids = db.read_transaction(
         q_showcase_search.search,
         request.args)
