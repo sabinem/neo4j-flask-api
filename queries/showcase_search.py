@@ -1,24 +1,24 @@
 from utils import query_helpers as q_helpers
 from utils import result_helpers as r_helpers
 
-def search(tx, args):
+def search(tx, facet_dict):
     facets = []
     facets.extend(q_helpers.prepare_facets(
-        value_list=args.getlist('groups'),
+        value_list=facet_dict.get('groups', []),
         q_id ='g',
         label = 'Group',
         relationship = 'HAS_GROUP',
         property = 'group_name',
     ))
     facets.extend(q_helpers.prepare_facets(
-        value_list=args.getlist('tags'),
+        value_list=facet_dict.get('tags', []),
         q_id ='t',
         label = 'Tag',
         relationship = 'HAS_TAG',
         property='tag_name',
     ))
     facets.extend(q_helpers.prepare_facets(
-        value_list=args.getlist('showcase_type'),
+        value_list=facet_dict.get('showcase_type', []),
         q_id ='st',
         label = 'Applicationtype',
         relationship = 'HAS_APPLICATION_TYPE',

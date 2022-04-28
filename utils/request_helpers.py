@@ -4,12 +4,14 @@ from luqum import tree
 
 showcase_facets = ['tags', 'groups', 'showcase_type']
 
-def analyze_fq(fq):
-    fq_tree = parser.parse(fq)
+def analyze_fq(fq_lucene):
+    fq_dict = {}
+    fq_tree = parser.parse(fq_lucene)
     for item in fq_tree.children:
-        if item.name in showcase_facets:
+        facet = item.name
+        if facet in showcase_facets:
             op = item.expr.expr
             if type(op) == tree.AndOperation:
                 operands = [y.value for y in op.operands]
-                print(operands)
-    return fq
+                fq_dict[facet] = operands
+    return fq_dict

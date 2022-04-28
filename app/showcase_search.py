@@ -10,12 +10,10 @@ def search():
     db = get_db()
     limit = request.args.get('rows', 20)
     skip = request.args.get('start', 0)
-    fq = r_helpers.analyze_fq(request.args.get('fq'))
-    print(fq)
-
+    facet_dict = r_helpers.analyze_fq(request.args.get('fq'))
     showcase_ids = db.read_transaction(
         q_showcase_search.search,
-        request.args)
+        facet_dict)
     showcases = db.read_transaction(
         q_showcase_search.get_showcases,
         showcase_ids,
