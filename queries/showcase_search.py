@@ -33,15 +33,16 @@ def search(tx, args):
     return result.value('id')
 
 
-def get_showcases(tx, showcase_ids):
+def get_showcases(tx, showcase_ids, limit, skip):
     match_clause = helpers.get_ids_match_clause(
         match_clause="MATCH (s:Showcase) ",
         where_property='showcase_name',
         match_id='s',
         match_label='Showcase',
         ids=showcase_ids)
-    return_clause = "RETURN s"
-    q = match_clause + return_clause
+    return_clause = "RETURN s "
+    pagination_clause = f"ORDER BY s.showcase_name Skip {skip} LIMIT {limit}"
+    q = match_clause + return_clause + pagination_clause
     result = tx.run(q)
     showcases = []
     for record in result:
