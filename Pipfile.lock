@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "d741e29a536c39b5c122c41b571b660008286a608ac12c645e3ad832f50d58ed"
+            "sha256": "99677dca05961c6ed7d7e8f12dc3589239d28c6509123bcc99490a2ff4b277b9"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -56,6 +56,14 @@
             "markers": "python_version >= '3.7'",
             "version": "==3.1.1"
         },
+        "luqum": {
+            "hashes": [
+                "sha256:2910a6d1eaba62a7fbaf3ea867b0da9b0d80739f87eb804906dc6bc4cbf6647f",
+                "sha256:f7518558bcfd219771083fcca9c2c877c3ff621beb2f5197d569e14ec2c6fe6f"
+            ],
+            "index": "pypi",
+            "version": "==0.11.0"
+        },
         "markupsafe": {
             "hashes": [
                 "sha256:0212a68688482dc52b2d45013df70d169f542b7394fc744c02a57374a4207003",
@@ -104,10 +112,17 @@
         },
         "neo4j": {
             "hashes": [
-                "sha256:58f289c4210310740de429d3daef6d6a972c247aeba6820f2fcba4b04bb56204"
+                "sha256:f2c9838607f7c95fa6e0c0153be48dfbbcef6f29930df3c596509490ca9eea8c"
             ],
             "index": "pypi",
-            "version": "==4.4.2"
+            "version": "==4.4.3"
+        },
+        "ply": {
+            "hashes": [
+                "sha256:00c7c1aaa88358b9c765b6d3000c6eec0ba42abca5351b095321aef446081da3",
+                "sha256:096f9b8350b65ebd2fd1346b12452efe5b9607f7482813ffca50c22722a807ce"
+            ],
+            "version": "==3.11"
         },
         "python-dotenv": {
             "hashes": [
