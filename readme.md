@@ -17,3 +17,7 @@ export FLASK_APP=app.py
 export FLASK_ENV=development
 flask run
 ```
+
+### full text search
+
+https://www.cnblogs.com/jpfss/p/11394385.html
