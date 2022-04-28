@@ -1,30 +1,31 @@
-from utils import query_helpers as helpers
+from utils import query_helpers as q_helpers
+from utils import result_helpers as r_helpers
 
 def search(tx, args):
     facets = []
-    facets.extend(helpers.prepare_facets(
+    facets.extend(q_helpers.prepare_facets(
         value_list=args.getlist('groups'),
         q_id ='g',
         label = 'Group',
         relationship = 'HAS_GROUP',
         property = 'group_name',
     ))
-    facets.extend(helpers.prepare_facets(
+    facets.extend(q_helpers.prepare_facets(
         value_list=args.getlist('tags'),
         q_id ='t',
         label = 'Tag',
         relationship = 'HAS_TAG',
         property='tag_name',
     ))
-    facets.extend(helpers.prepare_facets(
+    facets.extend(q_helpers.prepare_facets(
         value_list=args.getlist('showcase_type'),
         q_id ='st',
         label = 'Applicationtype',
         relationship = 'HAS_APPLICATION_TYPE',
         property='application_type_name',
     ))
-    q = helpers.get_facet_match_clause('Showcase', 's', facets)
-    where_clause = helpers.get_facet_where_clause(facets)
+    q = q_helpers.get_facet_match_clause('Showcase', 's', facets)
+    where_clause = q_helpers.get_facet_where_clause(facets)
     if where_clause:
         q += where_clause
     return_clause = "RETURN s.showcase_name as id"
@@ -34,7 +35,7 @@ def search(tx, args):
 
 
 def get_showcases(tx, showcase_ids, limit, skip):
-    match_clause = helpers.get_ids_match_clause(
+    match_clause = q_helpers.get_ids_match_clause(
         match_clause="MATCH (s:Showcase) ",
         where_property='showcase_name',
         match_id='s',
@@ -54,7 +55,7 @@ def get_showcases(tx, showcase_ids, limit, skip):
 
 
 def get_datasets_per_showcases_count(tx, showcase_ids):
-    match_clause = helpers.get_ids_match_clause(
+    match_clause = q_helpers.get_ids_match_clause(
         match_clause = "MATCH (s:Showcase) -[r:USES_DATASET]-> (d:Dataset) ",
         where_property='showcase_name',
         match_id='s',
@@ -64,3 +65,42 @@ def get_datasets_per_showcases_count(tx, showcase_ids):
     q = match_clause + return_clause
     result = tx.run(q)
     return {record['name']: record['count'] for record in result}
+
+
+def get_groups_facets(tx,showcase_ids):
+    match_clause = q_helpers.get_ids_match_clause(
+        match_clause="MATCH (g:Group)<-[:HAS_GROUP]-(s:Showcase) ",
+        where_property='showcase_name',
+        match_id='s',
+        match_label='Showcase',
+        ids=showcase_ids)
+    return_clause = "RETURN g, count(g) as count_g"
+    q = match_clause + return_clause
+    result = tx.run(q)
+    return r_helpers.format_groups_facet_result(result)
+
+
+def get_showcase_type_facets(tx, showcase_ids):
+    match_clause = q_helpers.get_ids_match_clause(
+        match_clause="MATCH (a:Applicationtype)<-[r:HAS_APPLICATION_TYPE]-(s:Showcase) ",
+        where_property='showcase_name',
+        match_id='s',
+        match_label='Showcase',
+        ids=showcase_ids)
+    return_clause = "RETURN a, count(a) as count_a"
+    q = match_clause + return_clause
+    result = tx.run(q)
+    return r_helpers.format_facet_result(result, 'a', 'count_a', 'application_type_name')
+
+
+def get_tags_facets(tx, showcase_ids):
+    match_clause = q_helpers.get_ids_match_clause(
+        match_clause="MATCH (t:Tag)<-[r:HAS_TAG]-(s:Showcase) ",
+        where_property='showcase_name',
+        match_id='s',
+        match_label='Showcase',
+        ids=showcase_ids)
+    return_clause = "RETURN t, count(t) as count_t"
+    q = match_clause + return_clause
+    result = tx.run(q)
+    return r_helpers.format_facet_result(result, 't', 'count_t', 'tag_name')
