@@ -10,9 +10,9 @@ def format_groups_facet_result(result):
         for k, v in record['g'].items():
             if k == 'group_name':
                 facet_dict['name'] = v
-            if k.startswith('title'):
-                title_dict[k.strip('title_')] = v
-            facet_dict['display_name'] = json.dumps(title_dict)
+            if k.startswith('title_'):
+                title_dict[k.replace('title_', '')] = v
+        facet_dict['display_name'] = json.dumps(title_dict)
         search_facets.append(facet_dict)
     facets = {item['name']: item['count']  for item in search_facets}
     return (search_facets, _get_facets_from_search_facets(search_facets))
