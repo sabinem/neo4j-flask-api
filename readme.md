@@ -21,3 +21,13 @@ flask run
 ### full text search
 
 https://www.cnblogs.com/jpfss/p/11394385.html
+
+customizing analyzers
+
+https://graphaware.com/neo4j/2019/09/06/custom-fulltext-analyzer.html
+
+on github
+
+https://github.com/graphaware/fulltext-analyzer-neo4j-4
+
+https://community.neo4j.com/t/how-to-add-custom-lucene-analyzer/3923/2
