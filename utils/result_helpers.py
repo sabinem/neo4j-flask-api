@@ -14,6 +14,8 @@ def format_groups_facet_result(result):
                 title_dict[k.replace('title_', '')] = v
         facet_dict['display_name'] = json.dumps(title_dict)
         search_facets.append(facet_dict)
+    from pprint import pprint
+    pprint(search_facets)
     facets = {item['name']: item['count']  for item in search_facets}
     return (search_facets, _get_facets_from_search_facets(search_facets))
 
