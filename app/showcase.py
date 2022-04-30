@@ -22,7 +22,6 @@ def detail():
         q_showcase.get_showcase,
         id
     )
-    showcase['groups'] = []
     return Response(json.dumps(
         {
             "help": request.url,

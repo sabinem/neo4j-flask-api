@@ -15,7 +15,6 @@ def analyze_fq(fq_lucene):
             if facet in showcase_facets:
                 op = item.expr.expr
                 if type(op) == tree.Word:
-                    print(op.__dict__)
                     fq_dict[facet] = [op.value]
                 elif type(op) == tree.AndOperation:
                     operands = [y.value for y in op.operands]

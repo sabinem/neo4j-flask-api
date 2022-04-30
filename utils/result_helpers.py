@@ -14,8 +14,6 @@ def format_groups_facet_result(result):
                 title_dict[k.replace('title_', '')] = v
         facet_dict['display_name'] = json.dumps(title_dict)
         search_facets.append(facet_dict)
-    from pprint import pprint
-    pprint(search_facets)
     facets = {item['name']: item['count']  for item in search_facets}
     return (search_facets, _get_facets_from_search_facets(search_facets))
 
@@ -35,3 +33,49 @@ def format_facet_result(result, label, count, id_property):
 
 def _get_facets_from_search_facets(search_facets):
     return {item['name']: item['count'] for item in search_facets}
+
+
+def aggregate_per_result_key(result):
+    records = [record for record in result]
+    results_per_key = {}
+    for key in result.keys():
+        results_per_key[key] = list(set([record[key] for record in records]))
+    return results_per_key
+
+
+def map_showcase(showcase_record):
+    showcase_dict = {}
+    for k, v in showcase_record.items():
+        showcase_dict[k] = v
+        if k == 'showcase_name':
+            showcase_dict['name'] = v
+    return showcase_dict
+
+
+def map_showcase_type(showcase_dict, showcase_type_records):
+    showcase_type_record = showcase_type_records[0]
+    for k, v in showcase_type_record.items():
+        showcase_dict['showcase_type'] = v
+
+
+def map_showcase_groups(showcase_dict, showcase_group_records):
+    showcase_dict['groups'] = []
+    for showcase_group_record in showcase_group_records:
+        group = {}
+        title_dict= {}
+        for k,v in showcase_group_record.items():
+            if k.startswith('title_'):
+                title_dict[k.replace('title_', '')] = v
+                continue
+            elif k == 'group_name':
+                group['name'] = k
+            group[k] = v
+        group['title'] = json.dumps(title_dict)
+        showcase_dict['groups'].append(group)
+
+
+def map_showcase_tags(showcase_dict, showcase_tag_records):
+    showcase_dict['tags'] = []
+    for showcase_tag_record in showcase_tag_records:
+        for k,v in showcase_tag_record.items():
+            showcase_dict['tags'].append({'name': v, 'display_name': v})

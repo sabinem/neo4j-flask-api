@@ -1,12 +1,17 @@
+from utils import result_helpers as r_helpers
+
+
 def get_showcase(tx, id):
-    q = f"MATCH (s:Showcase) WHERE s.showcase_name='{id}' RETURN s"
+    q = f"MATCH (a:Applicationtype)<-[:HAS_APPLICATION_TYPE]-(s:Showcase)-[:HAS_GROUP]->(g:Group), " \
+        "(s:Showcase)-[]->(t:Tag) " \
+        f"WHERE s.showcase_name='{id}' " \
+        f"RETURN s, a, g, t"
     result = tx.run(q)
-    record = result.single()
-    showcase_dict = {}
-    for k,v in record["s"].items():
-        if k == 'showcase_name':
-            showcase_dict['name'] = v
-        showcase_dict[k] = v
+    result_grouped = r_helpers.aggregate_per_result_key(result)
+    showcase_dict = r_helpers.map_showcase(result_grouped['s'][0])
+    r_helpers.map_showcase_type(showcase_dict, result_grouped['a'])
+    r_helpers.map_showcase_groups(showcase_dict, result_grouped['g'])
+    r_helpers.map_showcase_tags(showcase_dict, result_grouped['t'])
     return showcase_dict
 
 
