@@ -1,8 +1,8 @@
 from luqum.parser import parser
 from luqum import tree
 
-
 showcase_facets = ['tags', 'groups', 'showcase_type']
+
 
 def analyze_fq(fq_lucene):
     if not fq_lucene:
