@@ -5,6 +5,7 @@ from queries import showcase_search as q_showcase_search
 from utils import request_helpers as r_helpers
 from .routes import get_db
 
+
 @app.route("/showcase-search")
 def search():
     db = get_db()
