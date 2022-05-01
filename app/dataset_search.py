@@ -2,7 +2,7 @@ import json
 from flask import Response, request
 from app import app
 from queries import dataset_search as q_dataset_search
-from utils import request_helpers as r_helpers
+from utils import request_helpers as request_h
 from .routes import get_db
 
 
@@ -11,7 +11,7 @@ def dataset_search():
     db = get_db()
     limit = request.args.get('rows', 20)
     skip = request.args.get('start', 0)
-    facet_dict = r_helpers.analyze_fq(request.args.get('fq'))
+    facet_dict = request_h.analyze_fq(request.args.get('fq'))
     query_term = request.args.get('q')
     dataset_ids = db.read_transaction(
         q_dataset_search.dataset_search,
