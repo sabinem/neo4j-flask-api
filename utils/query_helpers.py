@@ -28,7 +28,7 @@ def get_facet_where_clause(facets):
     return "WHERE " + where_conditions + " "
 
 
-def get_ids_match_clause(match_clause, match_id, match_label, where_property, ids):
+def get_ids_match_clause(match_clause, match_node, where_property, ids):
     ids_list = ','.join([f"'{id}'" for id in ids])
-    match_clause = f"{match_clause} WHERE {match_id}.{where_property} IN [{ids_list}]"
+    match_clause = f"{match_clause} WHERE {match_node}.{where_property} IN [{ids_list}]"
     return match_clause + " "
