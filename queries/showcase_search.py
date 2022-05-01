@@ -2,7 +2,7 @@ from utils import query_helpers as q_helpers
 from utils import result_helpers as r_helpers
 
 
-def search(tx, facet_dict, query_term):
+def showcase_search(tx, facet_dict, query_term):
     facets = []
     facets.extend(q_helpers.prepare_facets(
         value_list=facet_dict.get('groups', []),

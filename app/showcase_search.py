@@ -7,14 +7,14 @@ from .routes import get_db
 
 
 @app.route("/showcase-search")
-def search():
+def showcase_search():
     db = get_db()
     limit = request.args.get('rows', 20)
     skip = request.args.get('start', 0)
     facet_dict = r_helpers.analyze_fq(request.args.get('fq'))
     query_term = request.args.get('q')
     showcase_ids = db.read_transaction(
-        q_showcase_search.search,
+        q_showcase_search.showcase_search,
         facet_dict,
         query_term,
     )
