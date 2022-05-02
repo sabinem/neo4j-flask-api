@@ -2,7 +2,6 @@ import json
 from flask import Response, request
 from app import app
 from queries import showcase as q_showcase
-from utils import request_helpers as r_helpers
 from utils import response_helpers as response_h
 from .routes import get_db
 
