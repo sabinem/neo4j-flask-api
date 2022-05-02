@@ -71,7 +71,7 @@ def map_showcase_groups(showcase_dict, showcase_group_records):
                 group['name'] = k
             group[k] = v
         group['title'] = json.dumps(title_dict)
-        showcase_dict['groups'].append(group)
+        data_dict['groups'].append(group)
 
 
 def map_showcase_tags(showcase_dict, showcase_tag_records):
@@ -79,3 +79,24 @@ def map_showcase_tags(showcase_dict, showcase_tag_records):
     for showcase_tag_record in showcase_tag_records:
         for k,v in showcase_tag_record.items():
             showcase_dict['tags'].append({'name': v, 'display_name': v})
+
+
+def map_datasets(dataset_records):
+    datasets = []
+    for dataset_record in dataset_records:
+        dataset_dict = {}
+        title_dict = {}
+        description_dict = {}
+        for k, v in dataset_record.items():
+            if k.startswith('title_'):
+                title_dict[k.replace('title_', '')] = v
+            elif k.startswith('description_'):
+                description_dict[k.replace('description_', '')] = v
+            else:
+                dataset_dict[k] = v
+            if k == 'dataset_identifier':
+                dataset_dict['identifier'] = v
+        dataset_dict['title'] = title_dict
+        dataset_dict['description'] = description_dict
+        datasets.append(dataset_dict)
+    return datasets
