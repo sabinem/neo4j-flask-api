@@ -1,22 +1,29 @@
 from luqum.parser import parser
-from luqum import tree
+from luqum import tree as luqum_vocabulary
 
 
-showcase_facets = ['tags', 'groups', 'showcase_type']
-
-def analyze_fq(fq_lucene):
+def analyze_fq(fq_lucene, facets):
     if not fq_lucene:
         return {}
-    fq_dict = {}
     fq_tree = parser.parse(fq_lucene)
+    fq_dict = {}
+    if hasattr(fq_tree, 'name'):
+        facet_item = fq_tree.name
+        if facet_item in facets:
+            fq_dict[facet_item] = _get_operands_for_facet(fq_tree)
+            return fq_dict
     for item in fq_tree.children:
         if hasattr(item, 'name'):
-            facet = item.name
-            if facet in showcase_facets:
-                op = item.expr.expr
-                if type(op) == tree.Word:
-                    fq_dict[facet] = [op.value]
-                elif type(op) == tree.AndOperation:
-                    operands = [y.value for y in op.operands]
-                    fq_dict[facet] = operands
+            facet_item = item.name
+            if facet_item in facets:
+                fq_dict[facet_item] = _get_operands_for_facet(item)
     return fq_dict
+
+
+def _get_operands_for_facet(item):
+    op = item.expr.expr
+    if type(op) == luqum_vocabulary.Word:
+        return [op.value]
+    elif type(op) == luqum_vocabulary.AndOperation:
+        operands = [y.value for y in op.operands]
+        return operands
