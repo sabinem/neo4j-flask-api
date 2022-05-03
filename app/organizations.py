@@ -37,7 +37,7 @@ def get_organizations():
             )
     return Response(json.dumps(
         {
-            "help": "organization_list",
+            "help": request.url,
             "success": True,
             "result": list_organizations
         }), mimetype="application/json")

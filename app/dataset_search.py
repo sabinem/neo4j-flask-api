@@ -34,7 +34,7 @@ def dataset_search():
     datasets = list(datasets_dict.values())
     return Response(json.dumps(
         {
-            "help": "request.url",
+            "help": request.url,
             "success": True,
             "result": {
                 "count": len(dataset_ids),

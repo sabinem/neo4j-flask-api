@@ -51,7 +51,7 @@ def showcase_search():
     )
     return Response(json.dumps(
         {
-            "help": "showcase_list",
+            "help": request.url,
             "success": True,
             "result": {
                 "count": len(showcase_ids),

@@ -27,7 +27,7 @@ def get_groups():
         )
     return Response(json.dumps(
         {
-            "help": "group_list",
+            "help": request.url,
             "success": True,
             "result": list_groups
         }), mimetype="application/json")
