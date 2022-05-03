@@ -2,7 +2,7 @@ import json
 from flask import Response, request
 from app import app
 from queries import showcase_search as q_showcase_search
-from utils import request_helpers as request_h
+from utils import analyze_lucene
 from .routes import get_db
 
 showcase_facets = ['tags', 'groups', 'showcase_type']
@@ -13,7 +13,7 @@ def showcase_search():
     db = get_db()
     limit = request.args.get('rows', 20)
     skip = request.args.get('start', 0)
-    facet_dict = request_h.analyze_fq(request.args.get('fq'), showcase_facets)
+    facet_dict = analyze_lucene.analyze_fq(request.args.get('fq'), showcase_facets)
     query_term = request.args.get('q')
     showcase_ids = db.read_transaction(
         q_showcase_search.showcase_search,

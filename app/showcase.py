@@ -2,7 +2,7 @@ import json
 from flask import Response, request
 from app import app
 from queries import showcase as q_showcase
-from utils import response_helpers as response_h
+from utils import api_responses
 from .routes import get_db
 
 
@@ -10,7 +10,7 @@ from .routes import get_db
 def detail():
     id = request.args.get('id')
     if not id:
-        return response_h.error_response(
+        return api_responses.error_response(
             help=request.url,
             type="Validation Error",
             value="id",
@@ -33,7 +33,7 @@ def detail():
 def datasets():
     id = request.args.get('id')
     if not id:
-        return response_h.error_response(
+        return api_responses.error_response(
             help=request.url,
             type="Validation Error",
             value="id",

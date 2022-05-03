@@ -1,19 +1,19 @@
-from utils import query_helpers as q_helpers
+from utils import query_builder
 from utils import result_helpers as r_helpers
 
 
 def dataset_search(tx, facet_dict, query_term):
     print(f"\n{facet_dict}\n")
     facets = []
-    facets.extend(q_helpers.prepare_facets(
+    facets.extend(query_builder.prepare_facets(
         value_list=facet_dict.get('groups', []),
         q_id ='g',
         label = 'Group',
         relationship = 'HAS_THEME',
         property = 'group_name',
     ))
-    q = q_helpers.get_facet_match_clause('Dataset', 'd', facets)
-    where_clause = q_helpers.get_facet_where_clause(facets)
+    q = query_builder.get_facet_match_clause('Dataset', 'd', facets)
+    where_clause = query_builder.get_facet_where_clause(facets)
     if where_clause:
         q += where_clause
     return_clause = "RETURN d.dataset_identifier as id"
@@ -24,7 +24,7 @@ def dataset_search(tx, facet_dict, query_term):
 
 
 def get_datasets(tx, dataset_ids, limit, skip):
-    match_clause = q_helpers.get_ids_match_clause(
+    match_clause = query_builder.get_ids_match_clause(
         match_clause="MATCH (o:Organization)<-[:BELONGS_TO]-(d:Dataset) ",
         where_property='dataset_identifier',
         match_node='d',
@@ -39,7 +39,7 @@ def get_datasets(tx, dataset_ids, limit, skip):
 
 
 def get_groups_for_datasets(tx, dataset_ids, dataset_dict):
-    match_clause = q_helpers.get_ids_match_clause(
+    match_clause = query_builder.get_ids_match_clause(
         match_clause="MATCH (g:Group)<-[:HAS_THEME]-(d:Dataset) ",
         where_property='dataset_identifier',
         match_node='d',
