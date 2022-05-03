@@ -24,7 +24,13 @@ def dataset_search():
         q_dataset_search.get_datasets,
         dataset_ids,
         limit,
-        skip)
+        skip
+    )
+    datasets_group_dict = db.read_transaction(
+        q_dataset_search.get_groups_for_datasets,
+        dataset_ids,
+        datasets_dict,
+    )
     datasets = list(datasets_dict.values())
     return Response(json.dumps(
         {

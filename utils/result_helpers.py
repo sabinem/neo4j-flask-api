@@ -124,3 +124,31 @@ def map_dataset(dataset_value):
     dataset_dict['title'] = title_dict
     dataset_dict['description'] = description_dict
     return dataset_dict
+
+
+def get_dataset_group_dict_from_result(result, dataset_dict):
+    assert(result.keys()[0] == 'id')
+    id = None
+    for record in result:
+        for key, value in record.items():
+            if key == 'id' and value != id:
+                print(f"{key} for {id}")
+                id = value
+                dataset_dict[id]['groups'] = []
+            elif key == 'g':
+                print(f"{key} for {id}")
+                dataset_dict[id]['groups'].append(map_group(value))
+    print(dataset_dict.keys())
+    return dataset_dict
+
+
+def map_group(group_value):
+    group_dict = {}
+    title_dict = {}
+    for k, v in group_value.items():
+        if k.startswith('title_'):
+            title_dict[k.replace('title_', '')] = v
+        elif k == 'group_name':
+            group_dict['name'] = v
+    group_dict['display_name'] = title_dict
+    return group_dict

@@ -36,3 +36,17 @@ def get_datasets(tx, dataset_ids, limit, skip):
     print(f"\n{q}\n")
     datasets = r_helpers.get_dataset_dict_from_result(result)
     return datasets
+
+
+def get_groups_for_datasets(tx, dataset_ids, dataset_dict):
+    match_clause = q_helpers.get_ids_match_clause(
+        match_clause="MATCH (g:Group)<-[:HAS_THEME]-(d:Dataset) ",
+        where_property='dataset_identifier',
+        match_node='d',
+        ids=dataset_ids)
+    return_clause = "RETURN d.dataset_identifier as id, g "
+    q = match_clause + return_clause
+    result = tx.run(q)
+    print(f"\n{q}\n")
+    r_helpers.get_dataset_group_dict_from_result(result, dataset_dict)
+    return dataset_dict
