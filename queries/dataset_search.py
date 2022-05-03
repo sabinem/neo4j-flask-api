@@ -1,5 +1,5 @@
 from utils import query_builder
-from utils import neo4j_results
+from utils import dataset_results
 
 
 def dataset_search(tx, facet_dict, query_term):
@@ -34,7 +34,7 @@ def get_datasets(tx, dataset_ids, limit, skip):
     q = match_clause + return_clause + pagination_clause
     result = tx.run(q)
     print(f"\n{q}\n")
-    datasets = neo4j_results.get_dataset_dict_from_result(result)
+    datasets = dataset_results.get_dataset_dict_from_result(result)
     return datasets
 
 
@@ -48,5 +48,5 @@ def get_groups_for_datasets(tx, dataset_ids, dataset_dict):
     q = match_clause + return_clause
     result = tx.run(q)
     print(f"\n{q}\n")
-    neo4j_results.get_dataset_group_dict_from_result(result, dataset_dict)
+    dataset_results.get_dataset_group_dict_from_result(result, dataset_dict)
     return dataset_dict

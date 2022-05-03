@@ -1,4 +1,4 @@
-from utils import neo4j_results
+from utils import showcase_results
 
 
 def get_showcase(tx, id):
@@ -7,11 +7,11 @@ def get_showcase(tx, id):
         f"WHERE s.showcase_name='{id}' " \
         f"RETURN s, a, g, t"
     result = tx.run(q)
-    result_grouped = neo4j_results.aggregate_per_result_key(result)
-    showcase_dict = neo4j_results.map_showcase(result_grouped['s'][0])
-    neo4j_results.map_showcase_type(showcase_dict, result_grouped['a'])
-    neo4j_results.map_showcase_groups(showcase_dict, result_grouped['g'])
-    neo4j_results.map_showcase_tags(showcase_dict, result_grouped['t'])
+    result_grouped = showcase_results.aggregate_per_result_key(result)
+    showcase_dict = showcase_results.map_showcase(result_grouped['s'][0])
+    showcase_results.map_showcase_type(showcase_dict, result_grouped['a'])
+    showcase_results.map_showcase_groups(showcase_dict, result_grouped['g'])
+    showcase_results.map_showcase_tags(showcase_dict, result_grouped['t'])
     return showcase_dict
 
 
