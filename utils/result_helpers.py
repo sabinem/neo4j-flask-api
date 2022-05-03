@@ -132,13 +132,10 @@ def get_dataset_group_dict_from_result(result, dataset_dict):
     for record in result:
         for key, value in record.items():
             if key == 'id' and value != id:
-                print(f"{key} for {id}")
                 id = value
                 dataset_dict[id]['groups'] = []
             elif key == 'g':
-                print(f"{key} for {id}")
                 dataset_dict[id]['groups'].append(map_group(value))
-    print(dataset_dict.keys())
     return dataset_dict
 
 
