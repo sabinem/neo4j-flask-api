@@ -11,7 +11,7 @@ dataset_facets = ['groups', 'res_format', 'keywords_en', 'organization', 'politi
 @app.route("/dataset-search")
 def dataset_search():
     db = get_db()
-    limit = request.args.get('rows', 20)
+    limit = request.args.get('rows', 22)
     skip = request.args.get('start', 0)
     facet_dict = request_h.analyze_fq(request.args.get('fq'), dataset_facets)
     query_term = request.args.get('q')
@@ -20,11 +20,12 @@ def dataset_search():
         facet_dict,
         query_term,
     )
-    datasets = db.read_transaction(
+    datasets_dict = db.read_transaction(
         q_dataset_search.get_datasets,
         dataset_ids,
         limit,
         skip)
+    datasets = list(datasets_dict.values())
     return Response(json.dumps(
         {
             "help": "request.url",

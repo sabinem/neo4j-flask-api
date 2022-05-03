@@ -5,6 +5,7 @@ from luqum import tree as luqum_vocabulary
 def analyze_fq(fq_lucene, facets):
     if not fq_lucene:
         return {}
+    print(f"\n{fq_lucene}\n")
     fq_tree = parser.parse(fq_lucene)
     fq_dict = {}
     if hasattr(fq_tree, 'name'):

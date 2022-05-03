@@ -1,4 +1,5 @@
 import json
+from collections import defaultdict
 
 
 def format_groups_facet_result(result):
@@ -81,22 +82,45 @@ def map_showcase_tags(showcase_dict, showcase_tag_records):
             showcase_dict['tags'].append({'name': v, 'display_name': v})
 
 
-def map_datasets(dataset_records):
-    datasets = []
-    for dataset_record in dataset_records:
-        dataset_dict = {}
-        title_dict = {}
-        description_dict = {}
-        for k, v in dataset_record.items():
-            if k.startswith('title_'):
-                title_dict[k.replace('title_', '')] = v
-            elif k.startswith('description_'):
-                description_dict[k.replace('description_', '')] = v
-            else:
-                dataset_dict[k] = v
-            if k == 'dataset_identifier':
-                dataset_dict['identifier'] = v
-        dataset_dict['title'] = title_dict
-        dataset_dict['description'] = description_dict
-        datasets.append(dataset_dict)
+def get_dataset_dict_from_result(result):
+    datasets = defaultdict(dict)
+    assert(result.keys()[0] == 'id')
+    for record in result:
+        for key, value in record.items():
+            if key == 'id':
+                id = value
+            elif key == 'o':
+                datasets[id]['organization'] = map_organization(value)
+            elif key == 'd':
+                datasets[id] = map_dataset(value)
     return datasets
+
+
+def map_organization(organization_value):
+    organization_dict = {}
+    title_dict = {}
+    for k, v in organization_value.items():
+        if k.startswith('title_'):
+            title_dict[k.replace('title_', '')] = v
+        elif k == 'organization_name':
+            organization_dict['name'] = v
+    organization_dict['title'] = title_dict
+    return organization_dict
+
+
+def map_dataset(dataset_value):
+    dataset_dict = {}
+    title_dict = {}
+    description_dict = {}
+    for k, v in dataset_value.items():
+        if k.startswith('title_'):
+            title_dict[k.replace('title_', '')] = v
+        elif k.startswith('description_'):
+            description_dict[k.replace('description_', '')] = v
+        else:
+            dataset_dict[k] = v
+        if k == 'dataset_identifier':
+            dataset_dict['identifier'] = v
+    dataset_dict['title'] = title_dict
+    dataset_dict['description'] = description_dict
+    return dataset_dict

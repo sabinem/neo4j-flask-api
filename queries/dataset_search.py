@@ -3,7 +3,7 @@ from utils import result_helpers as r_helpers
 
 
 def dataset_search(tx, facet_dict, query_term):
-    print(facet_dict)
+    print(f"\n{facet_dict}\n")
     facets = []
     facets.extend(q_helpers.prepare_facets(
         value_list=facet_dict.get('groups', []),
@@ -18,20 +18,21 @@ def dataset_search(tx, facet_dict, query_term):
         q += where_clause
     return_clause = "RETURN d.dataset_identifier as id"
     q += return_clause
+    print(f"\n{q}\n")
     result = tx.run(q)
     return result.value('id')
 
 
 def get_datasets(tx, dataset_ids, limit, skip):
     match_clause = q_helpers.get_ids_match_clause(
-        match_clause="MATCH (o:Organization)<-[:BELONGS_TO]-(d:Dataset)-[:HAS_THEME]->(g:Group)",
+        match_clause="MATCH (o:Organization)<-[:BELONGS_TO]-(d:Dataset) ",
         where_property='dataset_identifier',
         match_node='d',
         ids=dataset_ids)
-    return_clause = "RETURN d, o, g "
+    return_clause = "RETURN d.dataset_identifier as id, d, o "
     pagination_clause = f"ORDER BY d.dataset_identifier Skip {skip} LIMIT {limit}"
     q = match_clause + return_clause + pagination_clause
     result = tx.run(q)
-    result_grouped = r_helpers.aggregate_per_result_key(result)
-    datasets = r_helpers.map_datasets(result_grouped['d'])
+    print(f"\n{q}\n")
+    datasets = r_helpers.get_dataset_dict_from_result(result)
     return datasets
