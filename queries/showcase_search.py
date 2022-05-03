@@ -1,5 +1,5 @@
 from utils import query_builder
-from utils import result_helpers as r_helpers
+from utils import neo4j_results
 
 
 def showcase_search(tx, facet_dict, query_term):
@@ -91,7 +91,7 @@ def get_groups_facets(tx,showcase_ids):
     return_clause = "RETURN g, count(g) as count_g"
     q = match_clause + return_clause
     result = tx.run(q)
-    return r_helpers.format_groups_facet_result(result)
+    return neo4j_results.format_groups_facet_result(result)
 
 
 def get_showcase_type_facets(tx, showcase_ids):
@@ -103,7 +103,7 @@ def get_showcase_type_facets(tx, showcase_ids):
     return_clause = "RETURN a, count(a) as count_a"
     q = match_clause + return_clause
     result = tx.run(q)
-    return r_helpers.format_facet_result(result, 'a', 'count_a', 'application_type_name')
+    return neo4j_results.format_facet_result(result, 'a', 'count_a', 'application_type_name')
 
 
 def get_tags_facets(tx, showcase_ids):
@@ -115,4 +115,4 @@ def get_tags_facets(tx, showcase_ids):
     return_clause = "RETURN t, count(t) as count_t"
     q = match_clause + return_clause
     result = tx.run(q)
-    return r_helpers.format_facet_result(result, 't', 'count_t', 'tag_name')
+    return neo4j_results.format_facet_result(result, 't', 'count_t', 'tag_name')

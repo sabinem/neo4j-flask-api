@@ -1,5 +1,6 @@
 import json
 from collections import defaultdict
+from utils import map_neo4j_to_api
 
 
 def format_groups_facet_result(result):
@@ -90,40 +91,10 @@ def get_dataset_dict_from_result(result):
             if key == 'id':
                 id = value
             elif key == 'o':
-                datasets[id]['organization'] = map_organization(value)
+                datasets[id]['organization'] = map_neo4j_to_api.map_organization(value)
             elif key == 'd':
-                datasets[id] = map_dataset(value)
+                datasets[id] = map_neo4j_to_api.map_dataset(value)
     return datasets
-
-
-def map_organization(organization_value):
-    organization_dict = {}
-    title_dict = {}
-    for k, v in organization_value.items():
-        if k.startswith('title_'):
-            title_dict[k.replace('title_', '')] = v
-        elif k == 'organization_name':
-            organization_dict['name'] = v
-    organization_dict['title'] = title_dict
-    return organization_dict
-
-
-def map_dataset(dataset_value):
-    dataset_dict = {}
-    title_dict = {}
-    description_dict = {}
-    for k, v in dataset_value.items():
-        if k.startswith('title_'):
-            title_dict[k.replace('title_', '')] = v
-        elif k.startswith('description_'):
-            description_dict[k.replace('description_', '')] = v
-        else:
-            dataset_dict[k] = v
-        if k == 'dataset_identifier':
-            dataset_dict['identifier'] = v
-    dataset_dict['title'] = title_dict
-    dataset_dict['description'] = description_dict
-    return dataset_dict
 
 
 def get_dataset_group_dict_from_result(result, dataset_dict):
@@ -135,17 +106,5 @@ def get_dataset_group_dict_from_result(result, dataset_dict):
                 id = value
                 dataset_dict[id]['groups'] = []
             elif key == 'g':
-                dataset_dict[id]['groups'].append(map_group(value))
+                dataset_dict[id]['groups'].append(map_neo4j_to_api.map_group(value))
     return dataset_dict
-
-
-def map_group(group_value):
-    group_dict = {}
-    title_dict = {}
-    for k, v in group_value.items():
-        if k.startswith('title_'):
-            title_dict[k.replace('title_', '')] = v
-        elif k == 'group_name':
-            group_dict['name'] = v
-    group_dict['display_name'] = title_dict
-    return group_dict
