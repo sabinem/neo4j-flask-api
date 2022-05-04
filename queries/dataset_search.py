@@ -4,27 +4,34 @@ from utils import dataset_results
 
 def dataset_search(tx, facet_dict, query_term):
     print(f"\n{facet_dict}\n")
-    facets = []
-    facets.extend(query_builder.prepare_facets(
-        query="(d:Dataset)-[:HAS_THEME]->({}:Group)",
-        value_list=facet_dict.get('groups', []),
-        id ='g',
-        property = 'group_name',
-    ))
-    facets.extend(query_builder.prepare_facets(
-        query = "(d:Dataset)-[:BELONGS_TO]->({}:Organization)",
-        value_list=facet_dict.get('organization', []),
-        id ='o',
-        property = 'organization_name',
-    ))
-    facets.extend(query_builder.prepare_facets(
-        query="(d:Dataset)-[:BELONGS_TO]->(o:Organization)-[:HAS_LEVEL]->({}:Level)",
-        value_list=facet_dict.get('political_level', []),
-        id ='l',
-        property = 'political_level_name',
-    ))
-    q = query_builder.get_facet_match_clause(facets, "(d:Dataset)")
-    where_clause = query_builder.get_facet_where_clause(facets)
+    all_facets = []
+    facet_keys = facet_dict.keys()
+    if 'groups' in facet_keys:
+        facets = query_builder.prepare_facets(
+            values=facet_dict['groups'],
+            query="(d:Dataset)-[:HAS_THEME]->({}:Group)",
+            id ='g',
+            property = 'group_name'
+        )
+        all_facets.extend(facets)
+    if 'organization' in facet_keys:
+        facets = query_builder.prepare_facets(
+            values=facet_dict['organization'],
+            query="(d:Dataset)-[:BELONGS_TO]->({}:Organization)",
+            id ='o',
+            property = 'organization_name',
+        )
+        all_facets.extend(facets)
+    if 'organization' not in facet_keys and 'political_level' in facet_keys:
+        facets = query_builder.prepare_facets(
+            values=facet_dict['political_level'],
+            query="(d:Dataset)-[:BELONGS_TO]->(o:Organization)-[:HAS_LEVEL]->({}:Level)",
+            id ='l',
+            property = 'political_level_name',
+        )
+        all_facets.extend(facets)
+    q = query_builder.get_facet_match_clause(all_facets, "(d:Dataset)")
+    where_clause = query_builder.get_facet_where_clause(all_facets)
     if where_clause:
         q += where_clause
     return_clause = "RETURN d.dataset_identifier as id"

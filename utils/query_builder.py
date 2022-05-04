@@ -3,25 +3,19 @@ from collections import namedtuple
 Facet = namedtuple('Facet', ['query', 'id', 'property', 'value'])
 
 
-def prepare_facets(value_list, query, id, property):
-    print("prepare facet")
-    print(value_list)
+def prepare_facets(values, query, id, property):
     facets = []
-    for value in value_list:
-        facet = Facet(query, id + str(value_list.index(value)), property, value)
+    for value in values:
+        facet = Facet(query, id + str(values.index(value)), property, value)
         facets.append(facet)
     return facets
 
 
 def get_facet_match_clause(facets, match_default):
-    print("==================FACETS match clause")
     match_clause = "MATCH "
     if facets:
-        print(facets)
-        match_facets = ','.join([
-            item.query.format(item.id)
-            for item in facets])
-        print(match_facets)
+        facet_queries = [item.query.format(item.id) for item in facets]
+        match_facets = ','.join(facet_queries)
         match_clause += match_facets
     else:
         match_clause += match_default

@@ -3,27 +3,35 @@ from utils import showcase_results
 
 
 def showcase_search(tx, facet_dict, query_term):
-    facets = []
-    facets.extend(query_builder.prepare_facets(
-        query="(s:Showcase)-[:HAS_GROUP]->({}:Group)",
-        value_list=facet_dict.get('groups', []),
-        id ='g',
-        property = 'group_name',
-    ))
-    facets.extend(query_builder.prepare_facets(
-        query="(s:Showcase)-[:HAS_TAG]->({}:Tag)",
-        value_list=facet_dict.get('tags', []),
-        id ='t',
-        property='tag_name',
-    ))
-    facets.extend(query_builder.prepare_facets(
-        query="(s:Showcase)-[:HAS_APPLICATION_TYPE]->({}:Applicationtype)",
-        value_list=facet_dict.get('showcase_type', []),
-        id ='st',
-        property='application_type_name',
-    ))
-    q = query_builder.get_facet_match_clause(facets, "(s:Showcase)")
-    where_clause = query_builder.get_facet_where_clause(facets)
+    print(f"\n{facet_dict}\n")
+    all_facets = []
+    facet_keys = facet_dict.keys()
+    if 'groups' in facet_keys:
+        facets = query_builder.prepare_facets(
+            query="(s:Showcase)-[:HAS_GROUP]->({}:Group)",
+            values=facet_dict['groups'],
+            id='g',
+            property='group_name',
+        )
+        all_facets.extend(facets)
+    if 'tags' in facet_keys:
+        facets = query_builder.prepare_facets(
+            query="(s:Showcase)-[:HAS_TAG]->({}:Tag)",
+            values=facet_dict['tags'],
+            id='t',
+            property='tag_name'
+        )
+        all_facets.extend(facets)
+    if 'showcase_type' in facet_keys:
+        facets = query_builder.prepare_facets(
+            query="(s:Showcase)-[:HAS_APPLICATION_TYPE]->({}:Applicationtype)",
+            values=facet_dict['showcase_type'],
+            id='st',
+            property='application_type_name',
+        )
+        all_facets.extend(facets)
+    q = query_builder.get_facet_match_clause(all_facets, "(s:Showcase)")
+    where_clause = query_builder.get_facet_where_clause(all_facets)
     if where_clause:
         q += where_clause
     return_clause = "RETURN s.showcase_name as id"
