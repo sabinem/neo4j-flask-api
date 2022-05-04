@@ -20,6 +20,7 @@ def get_datasets_per_showcases(tx, id):
     return_clause = "RETURN d"
     q = match_clause + return_clause
     result = tx.run(q)
+    print(q)
     datasets = []
     for record in result:
         dataset_dict = {}

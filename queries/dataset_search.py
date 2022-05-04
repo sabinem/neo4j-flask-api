@@ -6,13 +6,24 @@ def dataset_search(tx, facet_dict, query_term):
     print(f"\n{facet_dict}\n")
     facets = []
     facets.extend(query_builder.prepare_facets(
+        query="(d:Dataset)-[:HAS_THEME]->({}:Group)",
         value_list=facet_dict.get('groups', []),
-        q_id ='g',
-        label = 'Group',
-        relationship = 'HAS_THEME',
+        id ='g',
         property = 'group_name',
     ))
-    q = query_builder.get_facet_match_clause('Dataset', 'd', facets)
+    facets.extend(query_builder.prepare_facets(
+        query = "(d:Dataset)-[:BELONGS_TO]->({}:Organization)",
+        value_list=facet_dict.get('organization', []),
+        id ='o',
+        property = 'organization_name',
+    ))
+    facets.extend(query_builder.prepare_facets(
+        query="(d:Dataset)-[:BELONGS_TO]->(o:Organization)-[:HAS_LEVEL]->({}:Level)",
+        value_list=facet_dict.get('political_level', []),
+        id ='l',
+        property = 'political_level_name',
+    ))
+    q = query_builder.get_facet_match_clause(facets, "(d:Dataset)")
     where_clause = query_builder.get_facet_where_clause(facets)
     if where_clause:
         q += where_clause
