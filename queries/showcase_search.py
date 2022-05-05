@@ -10,7 +10,7 @@ def showcase_search(tx, facet_dict, query_term):
         facets = query_builder.prepare_facets(
             query="(s:Showcase)-[:HAS_GROUP]->({}:Group)",
             values=facet_dict['groups'],
-            id='g',
+            ids=['g'],
             property='group_name',
         )
         all_facets.extend(facets)
@@ -18,7 +18,7 @@ def showcase_search(tx, facet_dict, query_term):
         facets = query_builder.prepare_facets(
             query="(s:Showcase)-[:HAS_TAG]->({}:Tag)",
             values=facet_dict['tags'],
-            id='t',
+            ids=['t'],
             property='tag_name'
         )
         all_facets.extend(facets)
@@ -26,7 +26,7 @@ def showcase_search(tx, facet_dict, query_term):
         facets = query_builder.prepare_facets(
             query="(s:Showcase)-[:HAS_APPLICATION_TYPE]->({}:Applicationtype)",
             values=facet_dict['showcase_type'],
-            id='st',
+            ids=['st'],
             property='application_type_name',
         )
         all_facets.extend(facets)
