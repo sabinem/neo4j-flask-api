@@ -119,10 +119,6 @@ def get_facets_for_datasets(tx, dataset_ids, facet_key):
         ids=dataset_ids)
     return_clause = "RETURN facet, count(facet) as count_facet"
     q = match_clause + return_clause
-    print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
-    print(facet_key)
-    print(map_facet_match_clause[facet_key])
-    print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
     print(q)
     result = tx.run(q)
     return result_mapping.format_facet_result(result, facet_key)
