@@ -1,3 +1,4 @@
+import json
 from collections import defaultdict
 from utils import map_neo4j_to_api
 
@@ -27,3 +28,39 @@ def get_dataset_group_dict_from_result(result, dataset_dict):
             elif key == 'g':
                 dataset_dict[id]['groups'].append(map_neo4j_to_api.map_group(value))
     return dataset_dict
+
+
+def format_facet_result(result, facet_key):
+    search_facets = []
+    for record in result:
+        facet_dict = {}
+        title_dict = {}
+        facet_dict['count'] = record['count_facet']
+        for k, v in record['facet'].items():
+            if facet_key in ['groups', 'organization']:
+                if k in ['group_name', 'organization_name']:
+                    facet_dict['name'] = v
+                if k.startswith('title_'):
+                    title_dict[k.replace('title_', '')] = v
+            elif facet_key == 'res_format':
+                if k == 'format':
+                    facet_dict['name'] = v
+                    facet_dict['display_name'] = v
+            elif facet_key == 'political_level':
+                if k == 'political_level_name':
+                    facet_dict['name'] = v
+                    facet_dict['display_name'] = v
+            elif facet_key == 'res_rights':
+                if k == 'right':
+                    facet_dict['name'] = v
+                    facet_dict['display_name'] = v
+        if facet_key in ['groups', 'organization']:
+            facet_dict['display_name'] = json.dumps(title_dict)
+        search_facets.append(facet_dict)
+    print(f"-------------{facet_key}")
+    print(search_facets)
+    return search_facets, _get_facets_from_search_facets(search_facets)
+
+
+def _get_facets_from_search_facets(search_facets):
+    return {item['name']: item['count'] for item in search_facets}
