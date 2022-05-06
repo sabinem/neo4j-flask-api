@@ -33,6 +33,11 @@ def dataset_search():
         dataset_ids,
         datasets_dict,
     )
+    datasets_group_dict = db.read_transaction(
+        query.get_resources_for_datasets,
+        dataset_ids,
+        datasets_dict,
+    )
     facets = {}
     search_facets = {}
     for facet_key in facet_keys:

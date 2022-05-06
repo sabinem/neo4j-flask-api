@@ -30,6 +30,23 @@ def get_dataset_group_dict_from_result(result, dataset_dict):
     return dataset_dict
 
 
+def get_dataset_resource_dict_from_result(result, dataset_dict):
+    id = None
+    assert(result.keys()[0] == 'id')
+    for record in result:
+        for key, value in record.items():
+            print(key, value)
+            if key == 'id' and value != id:
+                id = value
+                dataset_dict[id]['resources'] = []
+            elif key == 'resource_id':
+                resource = {'distribution_id': value}
+            elif key == 'format':
+                resource['format'] = value
+                dataset_dict[id]['resources'].append(resource)
+    return dataset_dict
+
+
 def format_facet_result(result, facet_key):
     search_facets = []
     for record in result:

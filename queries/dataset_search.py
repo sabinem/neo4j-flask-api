@@ -111,6 +111,20 @@ def get_groups_for_datasets(tx, dataset_ids, dataset_dict):
     return dataset_dict
 
 
+def get_resources_for_datasets(tx, dataset_ids, dataset_dict):
+    match_clause = query_builder.get_ids_match_clause(
+        match_clause="MATCH (f:Format)<-[:HAS_FORMAT]-(r:Distribution)<-[:HAS_DISTRIBUTION]-(d:Dataset) ",
+        where_property='dataset_identifier',
+        match_node='d',
+        ids=dataset_ids)
+    return_clause = "RETURN d.dataset_identifier as id, r.distribution_id as resource_id, f.format as format"
+    q = match_clause + return_clause
+    print(q)
+    result = tx.run(q)
+    result_mapping.get_dataset_resource_dict_from_result(result, dataset_dict)
+    return dataset_dict
+
+
 def get_facets_for_datasets(tx, dataset_ids, facet_key):
     match_clause = query_builder.get_ids_match_clause(
         match_clause=map_facet_match_clause[facet_key],
