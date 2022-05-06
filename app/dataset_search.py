@@ -28,12 +28,12 @@ def dataset_search():
         limit,
         skip
     )
-    datasets_group_dict = db.read_transaction(
+    db.read_transaction(
         query.get_groups_for_datasets,
         dataset_ids,
         datasets_dict,
     )
-    datasets_group_dict = db.read_transaction(
+    db.read_transaction(
         query.get_resources_for_datasets,
         dataset_ids,
         datasets_dict,
