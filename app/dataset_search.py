@@ -2,7 +2,7 @@ import json
 from flask import Response, request
 from app import app
 from queries import dataset_search as query
-from utils import analyze_lucene
+from utils import analyze_lucene, utils
 from .routes import get_db
 
 
@@ -37,6 +37,13 @@ def dataset_search():
         query.get_resources_for_datasets,
         dataset_ids,
         datasets_dict,
+    )
+    request_language = utils.get_request_language(facet_keys)
+    db.read_transaction(
+        query.get_keywords_for_datasets,
+        dataset_ids,
+        datasets_dict,
+        request_language
     )
     facets = {}
     search_facets = {}

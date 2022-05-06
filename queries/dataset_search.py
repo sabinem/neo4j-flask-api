@@ -125,6 +125,20 @@ def get_resources_for_datasets(tx, dataset_ids, dataset_dict):
     return dataset_dict
 
 
+def get_keywords_for_datasets(tx, dataset_ids, dataset_dict, language):
+    match_clause = query_builder.get_ids_match_clause(
+        match_clause=f"MATCH (k:Keyword{language.capitalize()})<-[:HAS_KEYWORD]-(d:Dataset) ",
+        where_property='dataset_identifier',
+        match_node='d',
+        ids=dataset_ids)
+    return_clause = "RETURN d.dataset_identifier as id, k.keyword as keyword"
+    q = match_clause + return_clause
+    print(q)
+    result = tx.run(q)
+    result_mapping.get_dataset_keyword_dict_from_result(result, dataset_dict, language)
+    return dataset_dict
+
+
 def get_facets_for_datasets(tx, dataset_ids, facet_key):
     match_clause = query_builder.get_ids_match_clause(
         match_clause=map_facet_match_clause[facet_key],

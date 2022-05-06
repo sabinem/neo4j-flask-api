@@ -83,5 +83,19 @@ def format_facet_result(result, facet_key):
     return search_facets, _get_facets_from_search_facets(search_facets)
 
 
+def get_dataset_keyword_dict_from_result(result, dataset_dict, language):
+    id = None
+    assert(result.keys()[0] == 'id')
+    for record in result:
+        for key, value in record.items():
+            print(key, value)
+            if key == 'id' and value != id:
+                id = value
+                dataset_dict[id]['keywords'] = {language: []}
+            elif key == 'keyword':
+                dataset_dict[id]['keywords'][language].append(value)
+    return dataset_dict
+
+
 def _get_facets_from_search_facets(search_facets):
     return {item['name']: item['count'] for item in search_facets}
