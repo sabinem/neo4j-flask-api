@@ -1,5 +1,7 @@
 import json
 from collections import defaultdict
+
+import utils.utils
 from utils import map_neo4j_to_api
 
 
@@ -86,12 +88,13 @@ def format_facet_result(result, facet_key):
 def get_dataset_keyword_dict_from_result(result, dataset_dict, language):
     id = None
     assert(result.keys()[0] == 'id')
+    for dataset in dataset_dict.values():
+        dataset['keywords'] = {lang: [] for lang in utils.utils.languages}
     for record in result:
         for key, value in record.items():
             print(key, value)
             if key == 'id' and value != id:
                 id = value
-                dataset_dict[id]['keywords'] = {language: []}
             elif key == 'keyword':
                 dataset_dict[id]['keywords'][language].append(value)
     return dataset_dict
