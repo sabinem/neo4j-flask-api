@@ -1,5 +1,5 @@
 from utils import query_builder
-from utils import dataset_results
+from utils import dataset_results as result_mapping
 languages = ['de', 'fr', 'en', 'it']
 dataset_facet_keys = ['groups', 'res_format', 'organization', 'political_level', 'res_rights']
 map_facet_match_clause = {
@@ -9,6 +9,7 @@ map_facet_match_clause = {
     'political_level': "MATCH (facet:Level)<-[:HAS_LEVEL]-(o:Organization)<-[:BELONGS_TO]-(d:Dataset) ",
     'res_rights': "MATCH (facet:Termsofuse)<-[:HAS_RIGHTS]-(dist:Distribution)<-[:HAS_DISTRIBUTION]-(d:Dataset) ",
 }
+
 
 def dataset_search(tx, facet_dict, query_term):
     print("--------- facet_dict")
@@ -86,7 +87,7 @@ def get_datasets(tx, dataset_ids, limit, skip):
     pagination_clause = f"ORDER BY d.dataset_identifier Skip {skip} LIMIT {limit}"
     q = match_clause + return_clause + pagination_clause
     result = tx.run(q)
-    datasets = dataset_results.get_dataset_dict_from_result(result)
+    datasets = result_mapping.get_dataset_dict_from_result(result)
     return datasets
 
 
@@ -99,7 +100,7 @@ def get_groups_for_datasets(tx, dataset_ids, dataset_dict):
     return_clause = "RETURN d.dataset_identifier as id, g "
     q = match_clause + return_clause
     result = tx.run(q)
-    dataset_results.get_dataset_group_dict_from_result(result, dataset_dict)
+    result_mapping.get_dataset_group_dict_from_result(result, dataset_dict)
     return dataset_dict
 
 
@@ -113,4 +114,4 @@ def get_facets_for_datasets(tx, dataset_ids, facet_key):
     q = match_clause + return_clause
     print(q)
     result = tx.run(q)
-    return dataset_results.format_facet_result(result, facet_key)
+    return result_mapping.format_facet_result(result, facet_key)
