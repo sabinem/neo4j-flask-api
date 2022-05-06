@@ -2,6 +2,7 @@ import json
 from flask import Response, request
 from app import app
 from queries import dataset_search as query
+from utils import analyze_lucene
 from .routes import get_db
 
 dataset_facet_keys = ['groups', 'res_format', 'keywords_en', 'organization', 'political_level', 'res_rights']
