@@ -1,8 +1,7 @@
 import json
 from flask import Response, request
 from app import app
-from queries import dataset_search as q_dataset_search
-from utils import analyze_lucene
+from queries import dataset_search as query
 from .routes import get_db
 
 dataset_facet_keys = ['groups', 'res_format', 'keywords_en', 'organization', 'political_level', 'res_rights']
@@ -18,26 +17,26 @@ def dataset_search():
     facet_dict = analyze_lucene.analyze_fq(request.args.get('fq'), dataset_facet_keys)
     query_term = request.args.get('q')
     dataset_ids = db.read_transaction(
-        q_dataset_search.dataset_search,
+        query.dataset_search,
         facet_dict,
         query_term,
     )
     datasets_dict = db.read_transaction(
-        q_dataset_search.get_datasets,
+        query.get_datasets,
         dataset_ids,
         limit,
         skip
     )
     datasets_group_dict = db.read_transaction(
-        q_dataset_search.get_groups_for_datasets,
+        query.get_groups_for_datasets,
         dataset_ids,
         datasets_dict,
     )
     search_facets = {}
     facets = {}
-    for facet_key in q_dataset_search.dataset_facet_keys:
+    for facet_key in  query.dataset_facet_keys:
         search_facets[facet_key], facets[facet_key] = db.read_transaction(
-            q_dataset_search.get_facets_for_datasets,
+            query.get_facets_for_datasets,
             dataset_ids,
             facet_key
         )
