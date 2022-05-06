@@ -54,6 +54,10 @@ def format_facet_result(result, facet_key):
                 if k == 'right':
                     facet_dict['name'] = v
                     facet_dict['display_name'] = v
+            elif facet_key.startswith('keywords'):
+                if k == 'keyword':
+                    facet_dict['name'] = v
+                    facet_dict['display_name'] = v
         if facet_key in ['groups', 'organization']:
             facet_dict['display_name'] = json.dumps(title_dict)
         search_facets.append(facet_dict)
