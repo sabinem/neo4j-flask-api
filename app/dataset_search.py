@@ -48,6 +48,7 @@ def dataset_search():
     facets = {}
     search_facets = {}
     for facet_key in facet_keys:
+        print(f"-------------get facets {facet_key}")
         search_facets[facet_key], facets[facet_key] = db.read_transaction(
             query.get_facets_for_datasets,
             dataset_ids,

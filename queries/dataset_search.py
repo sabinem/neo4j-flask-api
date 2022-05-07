@@ -8,7 +8,7 @@ map_facet_match_clause = {
     'res_format': "MATCH (facet:Format)<-[:HAS_FORMAT]-(dist:Distribution)<-[:HAS_DISTRIBUTION]-(d:Dataset) ",
     'organization': "MATCH (facet:Organization)<-[:BELONGS_TO]-(d:Dataset) ",
     'political_level': "MATCH (facet:Level)<-[:HAS_LEVEL]-(o:Organization)<-[:BELONGS_TO]-(d:Dataset) ",
-    'res_rights': "MATCH (facet:Termsofuse)<-[:HAS_RIGHTS]-(dist:Distribution)<-[:HAS_DISTRIBUTION]-(d:Dataset) ",
+    'res_rights': "MATCH (facet:TermsOfUse)<-[:HAS_RIGHTS]-(dist:Distribution)<-[:HAS_DISTRIBUTION]-(d:Dataset) ",
     'keywords_de': "MATCH (facet:KeywordDe)<-[:HAS_KEYWORD]-(d:Dataset) ",
     'keywords_en': "MATCH (facet:KeywordEn)<-[:HAS_KEYWORD]-(d:Dataset) ",
     'keywords_it': "MATCH (facet:KeywordIt)<-[:HAS_KEYWORD]-(d:Dataset) ",
@@ -48,7 +48,7 @@ def dataset_search(tx, facet_dict, query_term, facet_keys):
     if 'res_rights' in fq_facet_keys:
         facets = query_builder.prepare_facets(
             values=facet_dict['res_rights'],
-            query="(d:Dataset)-[:HAS_DISTRIBUTION]->({}:Distribution)-[:HAS_RIGHTS]->({}:Termsofuse)",
+            query="(d:Dataset)-[:HAS_DISTRIBUTION]->({}:Distribution)-[:HAS_RIGHTS]->({}:TermsOfUse)",
             ids =['dist','r'],
             property = 'right',
         )
@@ -145,8 +145,9 @@ def get_facets_for_datasets(tx, dataset_ids, facet_key):
         where_property='dataset_identifier',
         match_node='d',
         ids=dataset_ids)
-    return_clause = "RETURN facet, count(facet) as count_facet"
+    return_clause = "RETURN DISTINCT d.dataset_identifier as id, facet"
     q = match_clause + return_clause
+    print(f"facet query for {facet_key}:")
     print(q)
     result = tx.run(q)
-    return result_mapping.format_facet_result(result, facet_key)
+    return result_mapping.map_facet_result(result, facet_key)
