@@ -147,7 +147,6 @@ def get_facets_for_datasets(tx, dataset_ids, facet_key):
         ids=dataset_ids)
     return_clause = "RETURN DISTINCT id(facet) as facet_id, d.dataset_identifier as dataset_id, facet"
     q = match_clause + return_clause
-    print(f"facet query for {facet_key}:")
     print(q)
     result = tx.run(q)
     return result_mapping.map_facet_result(result, facet_key)

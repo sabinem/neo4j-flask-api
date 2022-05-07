@@ -37,7 +37,6 @@ def get_dataset_resource_dict_from_result(result, dataset_dict):
     assert(result.keys()[0] == 'id')
     for record in result:
         for key, value in record.items():
-            print(key, value)
             if key == 'id' and value != id:
                 id = value
                 dataset_dict[id]['resources'] = []
@@ -50,12 +49,10 @@ def get_dataset_resource_dict_from_result(result, dataset_dict):
 
 
 def map_facet_result(result, facet_key):
-    print(f"\n\n map facet {facet_key}")
     search_facet_dict = defaultdict(dict)
     assert(result.keys()[0] == 'facet_id')
     for record in result:
         for key, value in record.items():
-            print(key, value)
             if key == 'facet_id':
                 facet_id = value
             if key == 'dataset_id':
@@ -65,7 +62,6 @@ def map_facet_result(result, facet_key):
                     search_facet_dict[facet_id]['count'] = 1
             elif key == 'facet':
                 search_facet_dict[facet_id]['facet'] = value
-    print(search_facet_dict)
     search_facets = []
     for facet_dict in search_facet_dict.values():
         facet_item_dict = _map_facet(facet_dict['facet'], facet_key)
@@ -111,7 +107,6 @@ def get_dataset_keyword_dict_from_result(result, dataset_dict, language):
         dataset['keywords'] = {lang: [] for lang in utils.utils.languages}
     for record in result:
         for key, value in record.items():
-            print(key, value)
             if key == 'id' and value != id:
                 id = value
             elif key == 'keyword':
@@ -120,5 +115,4 @@ def get_dataset_keyword_dict_from_result(result, dataset_dict, language):
 
 
 def _get_facets_from_search_facets(search_facets):
-    print(search_facets)
     return {item['name']: item['count'] for item in search_facets}
