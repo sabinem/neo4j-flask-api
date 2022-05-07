@@ -11,6 +11,7 @@ database = config.get('NEO4J_DATABASE')
 driver = GraphDatabase.driver(url, auth=(username, password))
 driver.verify_connectivity()
 
+
 def get_db():
     if not hasattr(g, "neo4j_db"):
         g.neo4j_db = driver.session()
