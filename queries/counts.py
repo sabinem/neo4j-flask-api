@@ -1,8 +1,4 @@
-def get_dataset_count(tx):
-    result = tx.run("MATCH (d:Dataset) "
-                    "RETURN count(d)")
-    count = result.single()[0]
-    return count
+import pandas as pd
 
 
 def get_dataset_count_for_group(tx, group):
@@ -18,22 +14,20 @@ def get_groups(tx):
     return result.value('name', 'title_de')
 
 
-def get_showcase_count(tx):
-    result = tx.run("MATCH (s: Showcase) "
-                    "RETURN count(s) ")
-    count = result.single()[0]
-    return count
+def get_counts(tx):
+    q = """
+CALL db.labels() yield label 
+CALL apoc.cypher.run('match (:`'+label+'`) return count(*) as count', null) yield value
+return label, value.count as count
+"""
+    print(q)
+    result = tx.run(q)
+    return _map_count_result(result)
 
 
-def get_organization_count(tx):
-    result = tx.run("MATCH (o: Organization) "
-                    "RETURN count(o) ")
-    count = result.single()[0]
-    return count
+def _map_count_result(result):
+    df = pd.DataFrame.from_dict(result.data())
+    df.set_index('label', inplace=True)
+    ds = df.squeeze()
+    return ds.to_dict()
 
-
-def get_labels_count(tx):
-    result = tx.run("CALL db.labels() yield label "
-                    "CALL apoc.cypher.run('match (:`'+label+'`) return count(*) as count', null) yield value"
-                    "return label, value.count as count")
-    return result.values('label', 'count')
