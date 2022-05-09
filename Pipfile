@@ -8,6 +8,7 @@ flask = "*"
 neo4j = "*"
 python-dotenv = "*"
 luqum = "*"
+pandas = *
 
 [dev-packages]
 

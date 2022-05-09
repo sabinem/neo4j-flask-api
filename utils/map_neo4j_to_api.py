@@ -1,3 +1,6 @@
+import json
+
+
 def map_group(group_value):
     group_dict = {}
     title_dict = {}
@@ -36,5 +39,16 @@ def map_organization(organization_value):
             title_dict[k.replace('title_', '')] = v
         elif k == 'organization_name':
             organization_dict['name'] = v
-    organization_dict['title'] = title_dict
+    organization_dict['title'] = json.dumps(title_dict)
     return organization_dict
+
+
+def map_organizations_to_tree(organization_tree, organization_dict):
+    organizations = []
+    for org, suborgs in organization_tree.items():
+        item = organization_dict.get(org)
+        item['children'] = [
+            organization_dict.get(suborg) for suborg in suborgs
+        ]
+        organizations.append(item)
+    return organizations
