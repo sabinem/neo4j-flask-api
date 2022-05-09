@@ -1,13 +1,27 @@
-def get_categories(tx):
-    result = tx.run("MATCH (g:Group) "
-                    "RETURN g.group_name as name, g.title_de as title_de, "
-                    "g.title_fr as title_fr, g.title_en as title_en, "
-                    "g.title_it as title_it")
-    return result.values('name', 'title_de', 'title_fr', 'title_en', 'title_it')
+import pandas as pd
+from utils import map_neo4j_to_api
 
 
-def get_dataset_count(tx, group):
-    result = tx.run("MATCH (Group {group_name: $group})<-[:HAS_THEME]-(d:Dataset) "
-                    "RETURN count(d) ", group=group)
-    count = result.single()[0]
-    return count
+def get_categories_with_titles_and_counts(tx):
+    q = """
+MATCH (g:Group) <-[:HAS_THEME]-(d:Dataset) 
+RETURN count(d) as count, g, g.group_name as name
+"""
+    print(q)
+    result = tx.run(q)
+    return _map_count_result(result)
+
+
+def _map_count_result(result):
+    df = pd.DataFrame.from_dict(result.data())
+    df['group'] = df.apply(lambda x:_transform_group(g=x['g'], count=x['count']), axis=1)
+    df = df.drop(columns=['g', 'count'])
+    df.set_index('name', inplace=True)
+    ds = df.squeeze()
+    return ds.to_list()
+
+
+def _transform_group(g, count):
+    group = map_neo4j_to_api.map_group(g)
+    group['package_count'] = count
+    return group

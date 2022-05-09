@@ -10,6 +10,7 @@ def map_group(group_value):
         elif k == 'group_name':
             group_dict['name'] = v
     group_dict['display_name'] = title_dict
+    group_dict['title'] = title_dict
     return group_dict
 
 
