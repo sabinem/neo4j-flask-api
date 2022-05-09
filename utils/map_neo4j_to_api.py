@@ -30,26 +30,3 @@ def map_dataset(dataset_value):
     dataset_dict['title'] = title_dict
     dataset_dict['description'] = description_dict
     return dataset_dict
-
-
-def map_organization(organization_value):
-    organization_dict = {}
-    title_dict = {}
-    for k, v in organization_value.items():
-        if k.startswith('title_'):
-            title_dict[k.replace('title_', '')] = v
-        elif k == 'organization_name':
-            organization_dict['name'] = v
-    organization_dict['title'] = json.dumps(title_dict)
-    return organization_dict
-
-
-def map_organizations_to_tree(organization_tree, organization_dict):
-    organizations = []
-    for org, suborgs in organization_tree.items():
-        item = organization_dict.get(org)
-        item['children'] = [
-            organization_dict.get(suborg) for suborg in suborgs
-        ]
-        organizations.append(item)
-    return organizations
