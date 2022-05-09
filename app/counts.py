@@ -9,11 +9,7 @@ from .routes import get_db
 def get_counts():
     db = get_db()
     counts = db.read_transaction(q_counts.get_counts)
-    groups = db.read_transaction(q_counts.get_groups)
-    group_counts = {}
-    for group in groups:
-        group_count = db.read_transaction(q_counts.get_dataset_count_for_group, request.args.get("group", group))
-        group_counts[group] = group_count
+    group_counts = db.read_transaction(q_counts.get_group_counts)
     return Response(json.dumps(
         {
             "help": "ckan counts",

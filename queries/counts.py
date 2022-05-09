@@ -1,17 +1,14 @@
 import pandas as pd
 
 
-def get_dataset_count_for_group(tx, group):
-    result = tx.run("MATCH (Group {group_name: $group})<-[:HAS_THEME]-(d:Dataset) "
-                    "RETURN count(d) ", group=group)
-    count = result.single()[0]
-    return count
-
-
-def get_groups(tx):
-    result = tx.run("MATCH (g: Group) "
-                    "RETURN g.group_name as name ")
-    return result.value('name', 'title_de')
+def get_group_counts(tx):
+    q = """
+MATCH (g:Group) <-[:HAS_THEME]-(d:Dataset) 
+RETURN count(d) as count, g.group_name as label
+"""
+    print(q)
+    result = tx.run(q)
+    return _map_count_result(result)
 
 
 def get_counts(tx):
@@ -30,4 +27,3 @@ def _map_count_result(result):
     df.set_index('label', inplace=True)
     ds = df.squeeze()
     return ds.to_dict()
-
