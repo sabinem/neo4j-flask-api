@@ -3,9 +3,11 @@ from utils import map_neo4j_to_api
 
 
 def get_organization_list(tx):
-    q = """MATCH(o: Organization) 
+    q = """
+MATCH(o: Organization) 
 OPTIONAL MATCH(o: Organization)-[: HAS_PARENT]->(po:Organization)
-RETURN po.organization_name as po_id, o.organization_name as o_id, o as organization"""
+RETURN po.organization_name as po_id, o.organization_name as o_id, o as organization
+"""
     print(q)
     result = tx.run(q)
     return _map_organization_list_result(result)
