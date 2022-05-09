@@ -1,5 +1,4 @@
 import pandas as pd
-from utils import map_neo4j_to_api
 
 
 def get_categories_with_titles_and_counts(tx):
@@ -22,6 +21,19 @@ def _map_count_result(result):
 
 
 def _transform_group(g, count):
-    group = map_neo4j_to_api.map_group(g)
+    group = _map_to_api(g)
     group['package_count'] = count
     return group
+
+
+def _map_to_api(group):
+    group_dict = {}
+    title_dict = {}
+    for k, v in group.items():
+        if k.startswith('title_'):
+            title_dict[k.replace('title_', '')] = v
+        elif k == 'group_name':
+            group_dict['name'] = v
+    group_dict['display_name'] = title_dict
+    group_dict['title'] = title_dict
+    return group_dict
