@@ -1,3 +1,4 @@
+import pandas as pd
 from collections import namedtuple
 
 Facet = namedtuple('Facet', ['query', 'ids', 'property', 'value'])
@@ -35,3 +36,14 @@ def get_filter_by_ids_where_clause(condition, filter_by_ids):
     ids_list = ','.join([f"'{id}'" for id in filter_by_ids])
     where_clause = f"WHERE {condition} IN [{ids_list}]"
     return where_clause + " "
+
+
+def map_search_result(result, return_ids=True):
+    df = pd.DataFrame(result.data())
+    print(df)
+    count = str(df['count'].sum())
+    if not return_ids:
+        return count, None
+    filter_by_ids = df['id'].to_list()
+    return count, filter_by_ids
+

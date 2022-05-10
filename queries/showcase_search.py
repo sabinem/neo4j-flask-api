@@ -39,17 +39,7 @@ def showcase_facet_search(tx, facet_dict):
     print(f"\nRetrieve showcases in facet search {facet_dict}\n")
     print(q)
     result = tx.run(q)
-    return _map_search_result(result, return_ids=bool(search_facets))
-
-
-def _map_search_result(result, return_ids=True):
-    df = pd.DataFrame(result.data())
-    print(df)
-    count = str(df['count'].sum())
-    if not return_ids:
-        return count, None
-    filter_by_ids = df['id'].to_list()
-    return count, filter_by_ids
+    return query_builder.map_search_result(result, return_ids=bool(search_facets))
 
 
 def get_query_search(tx, term, filter_by_showcase_ids):
@@ -61,7 +51,7 @@ YIELD node as showcase, score
     q += "RETURN showcase.showcase_name as id, count(showcase) as count"
     print(q)
     result = tx.run(q)
-    return _map_search_result(result)
+    return query_builder.map_search_result(result)
 
 
 def get_showcases(tx, filter_by_showcase_ids, limit, skip):
