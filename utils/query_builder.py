@@ -11,15 +11,17 @@ def prepare_facets(values, query, ids, property):
     return facets
 
 
-def get_facet_match_clause(facets, match_default):
-    match_clause = "MATCH "
+def get_facet_match_clause(facets, node_id, node_label):
+    if not facets:
+        return f"MATCH ({node_id}:{node_label}) "
+    q = "MATCH "
     if facets:
         facet_queries = [item.query.format(*[id for id in item.ids]) for item in facets]
         match_facets = ','.join(facet_queries)
-        match_clause += match_facets
+        q += match_facets
     else:
-        match_clause += match_default
-    return match_clause + " "
+        q += match_default
+    return q
 
 
 def get_facet_where_clause(facets):

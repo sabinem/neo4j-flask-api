@@ -31,9 +31,7 @@ def showcase_facet_search(tx, facet_dict):
             property='application_type_name',
         )
         search_facets.extend(facets)
-    q = query_builder.get_facet_match_clause(search_facets, "(s:Showcase)")
-    if not search_facets:
-        q = "MATCH (s:Showcase) "
+    q = query_builder.get_facet_match_clause(search_facets, "s", "Showcase")
     where_clause = query_builder.get_facet_where_clause(search_facets)
     if where_clause:
         q += where_clause
