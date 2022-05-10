@@ -40,7 +40,6 @@ def get_filter_by_ids_where_clause(condition, filter_by_ids):
 
 def map_search_result(result, return_ids=True):
     df = pd.DataFrame(result.data())
-    print(df)
     count = str(df['count'].sum())
     if not return_ids:
         return count, None
