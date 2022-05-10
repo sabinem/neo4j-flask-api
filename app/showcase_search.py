@@ -22,7 +22,7 @@ def showcase_search():
     )
 
     if query_term:
-        filter_by_showcase_ids = db.read_transaction(
+        count, filter_by_showcase_ids = db.read_transaction(
             q_showcase_search.get_query_search,
             query_term,
             filter_by_showcase_ids,
