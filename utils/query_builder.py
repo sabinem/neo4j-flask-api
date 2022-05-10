@@ -38,11 +38,9 @@ def get_filter_by_ids_where_clause(condition, filter_by_ids):
     return where_clause + " "
 
 
-def map_search_result(result, return_ids=True):
+def map_search_result(result, filtered_search=True):
     df = pd.DataFrame(result.data())
     count = str(df['count'].sum())
-    if not return_ids:
-        return count, None
     filter_by_ids = df['id'].to_list()
-    return count, filter_by_ids
+    return count, filter_by_ids, filtered_search
 

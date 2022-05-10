@@ -39,27 +39,27 @@ def showcase_facet_search(tx, facet_dict):
     print(f"\nRetrieve showcases in facet search {facet_dict}\n")
     print(q)
     result = tx.run(q)
-    return query_builder.map_search_result(result, return_ids=bool(search_facets))
+    return query_builder.map_search_result(result, filtered_search=bool(search_facets))
 
 
-def get_query_search(tx, term, filter_by_showcase_ids):
+def get_query_search(tx, term, filter_by_showcase_ids, filtered_search):
     q = f"""
 CALL db.index.fulltext.queryNodes('showcase_de', '"{term}"') 
-YIELD node as showcase, score
+YIELD node as s, score
 """
-    q += _showcase_filter_clause(filter_by_showcase_ids)
-    q += "RETURN showcase.showcase_name as id, count(showcase) as count"
+    q += _showcase_filter_clause(filter_by_showcase_ids, filtered_search)
+    q += "RETURN s.showcase_name as id, count(s) as count"
     print(q)
     result = tx.run(q)
     return query_builder.map_search_result(result)
 
 
-def get_showcases(tx, filter_by_showcase_ids, limit, skip):
+def get_showcases(tx, filter_by_showcase_ids, filtered_search, limit, skip):
     q = """
 MATCH (s:Showcase)
 OPTIONAL MATCH (s:Showcase)-[:USES_DATASET]->(d:Dataset) 
 """
-    q += _showcase_filter_clause(filter_by_showcase_ids)
+    q += _showcase_filter_clause(filter_by_showcase_ids, filtered_search)
     q += "RETURN s as showcase, count(d) as count_d "
     q += f"ORDER BY s.showcase_name Skip {skip} LIMIT {limit}"
     print(q)
@@ -81,44 +81,44 @@ def _map_showcase(showcase, count_d):
     return showcase_dict
 
 
-def get_datasets_per_showcases_count(tx, filter_by_showcase_ids):
+def get_datasets_per_showcases_count(tx, filter_by_showcase_ids, filtered_search):
     q = "MATCH (s:Showcase) -[r:USES_DATASET]-> (d:Dataset) "
-    q += _showcase_filter_clause(filter_by_showcase_ids)
+    q += _showcase_filter_clause(filter_by_showcase_ids, filtered_search)
     q += "RETURN s.showcase_name as name, count(d) as count "
     print(q)
     result = tx.run(q)
     return {record['name']: record['count'] for record in result}
 
 
-def get_groups_facets(tx,filter_by_showcase_ids):
+def get_groups_facets(tx,filter_by_showcase_ids, filtered_search):
     q = "MATCH (g:Group)<-[:HAS_GROUP]-(s:Showcase) "
-    q += _showcase_filter_clause(filter_by_showcase_ids)
+    q += _showcase_filter_clause(filter_by_showcase_ids, filtered_search)
     q += "RETURN g, count(g) as count_g"
     print(q)
     result = tx.run(q)
     return _format_groups_facet_result(result)
 
 
-def get_showcase_type_facets(tx, filter_by_showcase_ids):
+def get_showcase_type_facets(tx, filter_by_showcase_ids, filtered_search):
     q = "MATCH (a:Applicationtype)<-[r:HAS_APPLICATION_TYPE]-(s:Showcase) "
-    q += _showcase_filter_clause(filter_by_showcase_ids)
+    q += _showcase_filter_clause(filter_by_showcase_ids, filtered_search)
     q += "RETURN a, count(a) as count_a"
     print(q)
     result = tx.run(q)
     return _format_facet_result(result, 'a', 'count_a', 'application_type_name')
 
 
-def get_tags_facets(tx, filter_by_showcase_ids):
+def get_tags_facets(tx, filter_by_showcase_ids, filtered_search):
     q = "MATCH (t:Tag)<-[r:HAS_TAG]-(s:Showcase) "
-    q += _showcase_filter_clause(filter_by_showcase_ids)
+    q += _showcase_filter_clause(filter_by_showcase_ids, filtered_search)
     q += "RETURN t, count(t) as count_t"
     print(q)
     result = tx.run(q)
     return _format_facet_result(result, 't', 'count_t', 'tag_name')
 
 
-def _showcase_filter_clause(filter_by_showcase_ids):
-    if not filter_by_showcase_ids:
+def _showcase_filter_clause(filter_by_showcase_ids, filtered_search):
+    if not filtered_search:
         return ""
     return query_builder.get_filter_by_ids_where_clause(
         condition='s.showcase_name',

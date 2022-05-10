@@ -16,37 +16,42 @@ def showcase_search():
     facet_dict = analyze_lucene.analyze_fq(request.args.get('fq'), showcase_facets)
     query_term = request.args.get('q')
 
-    count, filter_by_showcase_ids = db.read_transaction(
+    count, filter_by_showcase_ids, filtered_search = db.read_transaction(
         q_showcase_search.showcase_facet_search,
         facet_dict,
     )
 
     if query_term:
-        count, filter_by_showcase_ids = db.read_transaction(
+        count, filter_by_showcase_ids, filtered_search = db.read_transaction(
             q_showcase_search.get_query_search,
             query_term,
             filter_by_showcase_ids,
+            filtered_search,
         )
 
     showcases = db.read_transaction(
         q_showcase_search.get_showcases,
         filter_by_showcase_ids,
+        filtered_search,
         limit,
         skip)
 
     showcase_type_search_facets, showcase_type_facets = db.read_transaction(
         q_showcase_search.get_showcase_type_facets,
         filter_by_showcase_ids,
+        filtered_search,
     )
 
     groups_search_facets, groups_facets = db.read_transaction(
         q_showcase_search.get_groups_facets,
         filter_by_showcase_ids,
+        filtered_search,
     )
 
     tags_search_facets, tags_facets = db.read_transaction(
         q_showcase_search.get_tags_facets,
         filter_by_showcase_ids,
+        filtered_search,
     )
 
     return Response(json.dumps(
