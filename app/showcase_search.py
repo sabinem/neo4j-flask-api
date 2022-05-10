@@ -15,46 +15,46 @@ def showcase_search():
     skip = request.args.get('start', 0)
     facet_dict = analyze_lucene.analyze_fq(request.args.get('fq'), showcase_facets)
     query_term = request.args.get('q')
-    showcase_ids = db.read_transaction(
-        q_showcase_search.showcase_search,
+
+    count, filter_by_showcase_ids = db.read_transaction(
+        q_showcase_search.showcase_facet_search,
         facet_dict,
-        query_term,
     )
+
     if query_term:
-        showcase_ids = db.read_transaction(
+        filter_by_showcase_ids = db.read_transaction(
             q_showcase_search.get_query_search,
             query_term,
-            showcase_ids,
+            filter_by_showcase_ids,
         )
+
     showcases = db.read_transaction(
         q_showcase_search.get_showcases,
-        showcase_ids,
+        filter_by_showcase_ids,
         limit,
         skip)
-    showcase_ids_page = [showcase.get('name') for showcase in showcases]
-    showcase_dataset_count = db.read_transaction(
-        q_showcase_search.get_datasets_per_showcases_count,
-        showcase_ids_page)
-    for showcase in showcases:
-        showcase['num_datasets'] = showcase_dataset_count.get(showcase['name'])
+
     showcase_type_search_facets, showcase_type_facets = db.read_transaction(
         q_showcase_search.get_showcase_type_facets,
-        showcase_ids
+        filter_by_showcase_ids,
     )
+
     groups_search_facets, groups_facets = db.read_transaction(
         q_showcase_search.get_groups_facets,
-        showcase_ids
+        filter_by_showcase_ids,
     )
+
     tags_search_facets, tags_facets = db.read_transaction(
         q_showcase_search.get_tags_facets,
-        showcase_ids
+        filter_by_showcase_ids,
     )
+
     return Response(json.dumps(
         {
             "help": request.url,
             "success": True,
             "result": {
-                "count": len(showcase_ids),
+                "count": count,
                 "sort": "core desc, metadata_modified desc",
                 "facets": {
                     "tags": tags_facets,

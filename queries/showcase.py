@@ -1,6 +1,5 @@
 import json
 import pandas as pd
-from utils import showcase_results
 
 
 def get_showcase(tx, id):
