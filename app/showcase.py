@@ -17,7 +17,7 @@ def detail():
             msg="Missing Value"
         )
     db = get_db()
-    showcase = db.read_transaction(
+    output = db.read_transaction(
         q_showcase.get_showcase,
         id
     )
@@ -25,31 +25,5 @@ def detail():
         {
             "help": request.url,
             "success": True,
-            "result": showcase
-        }), mimetype="application/json")
-
-
-@app.route("/showcase-datasets")
-def datasets():
-    id = request.args.get('id')
-    if not id:
-        return api_responses.error_response(
-            help=request.url,
-            type="Validation Error",
-            value="id",
-            msg="Missing Value"
-        )
-    db = get_db()
-    datasets = db.read_transaction(
-        q_showcase.get_datasets_per_showcases,
-        id
-    )
-    for dataset in datasets:
-        dataset['organization'] = {'title': []}
-        dataset['groups'] = {'title': []}
-    return Response(json.dumps(
-        {
-            "help": request.url,
-            "success": True,
-            "result": datasets
+            "result": output,
         }), mimetype="application/json")
