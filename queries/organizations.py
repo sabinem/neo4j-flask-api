@@ -1,3 +1,4 @@
+import json
 import pandas as pd
 
 
@@ -49,7 +50,7 @@ def _transform_o_id(po_id, o_id):
 def _map_organization_to_api(organization):
     organization_dict = {}
     title_dict = {}
-    for k, v in organization_.items():
+    for k, v in organization.items():
         if k.startswith('title_'):
             title_dict[k.replace('title_', '')] = v
         elif k == 'organization_name':
