@@ -83,7 +83,6 @@ def _map_to_api(showcase_type, tags, groups, showcase, datasets, num_datasets):
     showcase_dict['groups'] = groups
     showcase_dict['showcase_type'] = showcase_type
     showcase_dict['num_datasets'] = str(num_datasets)
-    print(showcase_dict)
     return {
         'showcase': showcase_dict,
         'datasets': datasets,
