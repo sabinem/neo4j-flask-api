@@ -1,3 +1,4 @@
+import json
 import pandas as pd
 from collections import namedtuple
 
@@ -44,3 +45,14 @@ def map_search_result(result, filtered_search=True):
     filter_by_ids = df['id'].to_list()
     return count, filter_by_ids, filtered_search
 
+
+def map_organization_to_api(organization):
+    organization_dict = {}
+    title_dict = {}
+    for k, v in organization.items():
+        if k.startswith('title_'):
+            title_dict[k.replace('title_', '')] = v
+        elif k == 'organization_name':
+            organization_dict['name'] = v
+    organization_dict['title'] = json.dumps(title_dict)
+    return organization_dict

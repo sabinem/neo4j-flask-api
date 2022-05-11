@@ -1,5 +1,5 @@
-import json
 import pandas as pd
+from utils import query_builder
 
 
 def get_organization_list(tx):
@@ -17,7 +17,7 @@ def _map_organization_list_result(result):
     df = pd.DataFrame.from_dict(result.data())
     df_org = df.copy()
     df_org = df_org.drop(columns=['po_id']).set_index('o_id')
-    df_org['organization'] = df_org['organization'].apply(_map_organization_to_api)
+    df_org['organization'] = df_org['organization'].apply(query_builder.map_organization_to_api)
     ds_org = df_org.squeeze()
     organization_dict = ds_org.to_dict()
     df_tree = df[['po_id', 'o_id']]
@@ -45,18 +45,6 @@ def _transform_o_id(po_id, o_id):
     if po_id == o_id:
         return None
     return o_id
-
-
-def _map_organization_to_api(organization):
-    organization_dict = {}
-    title_dict = {}
-    for k, v in organization.items():
-        if k.startswith('title_'):
-            title_dict[k.replace('title_', '')] = v
-        elif k == 'organization_name':
-            organization_dict['name'] = v
-    organization_dict['title'] = json.dumps(title_dict)
-    return organization_dict
 
 
 def _map_organizations_to_tree_to_api(organization_tree, organization_dict):
