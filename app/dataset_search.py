@@ -1,4 +1,6 @@
 import json
+import pandas as pd
+from datetime import datetime
 from flask import Response, request
 from app import app
 from queries import dataset_search as q_dataset_search
@@ -10,6 +12,11 @@ dataset_facet_keys = ['groups', 'res_format', 'keywords_de', 'organization', 'po
 
 @app.route("/dataset-search")
 def dataset_search():
+    print("REQUEST-------------------------------------------------")
+    print(request)
+    print("--------------------------------------------------------")
+    print(datetime.now())
+    query_table = []
     db = get_db()
     limit = int(request.args.get('rows', 22))
     skip = int(request.args.get('start', 0))
@@ -18,57 +25,77 @@ def dataset_search():
         facet_keys = dataset_facet_keys
 
     fq_facet_dict = analyze_lucene.analyze_fq(request.args.get('fq'), facet_keys)
-
+    t = [datetime.now()]
     query_term = request.args.get('q')
-    count, filter_by_dataset_ids, filtered_search, = db.read_transaction(
+    q, count, filter_by_dataset_ids, filtered_search, = db.read_transaction(
         q_dataset_search.dataset_search,
         fq_facet_dict,
     )
-
+    t.append(datetime.now())
+    print(t[-1] - t[-2])
+    query_table.append({'title': 'facet_filter_query', 'time': t[-1] - t[-2], 'query': q})
     if query_term:
-        count, filter_by_dataset_ids, filtered_search, = db.read_transaction(
+        q, count, filter_by_dataset_ids, filtered_search, = db.read_transaction(
             q_dataset_search.get_query_search,
             query_term,
             filter_by_dataset_ids,
             filtered_search,
         )
-
+        t.append(datetime.now())
+        print(t[-1] - t[-2])
+        query_table.append({'title': 'search_query', 'time': t[-1] - t[-2], 'query': q})
     dataset_ids_on_page = filter_by_dataset_ids[skip:skip+limit]
-    datasets_dict = db.read_transaction(
+    q, datasets_dict = db.read_transaction(
         q_dataset_search.get_datasets,
         dataset_ids_on_page,
     )
-    db.read_transaction(
+    t.append(datetime.now())
+    print(t[-1] - t[-2])
+    query_table.append({'title': 'get datasets for page', 'time': t[-1] - t[-2], 'query': q})
+    q = db.read_transaction(
         q_dataset_search.get_groups_for_datasets,
         dataset_ids_on_page,
         datasets_dict,
     )
-    db.read_transaction(
+    t.append(datetime.now())
+    print(t[-1] - t[-2])
+    query_table.append({'title': 'get groups for datasets on page', 'time': t[-1] - t[-2], 'query': q})
+    q = db.read_transaction(
         q_dataset_search.get_resources_for_datasets,
         dataset_ids_on_page,
         datasets_dict,
     )
+    t.append(datetime.now())
+    print(t[-1] - t[-2])
+    query_table.append({'title': 'get resources for datasets on page', 'time': t[-1] - t[-2], 'query': q})
     request_language = utils.get_request_language(facet_keys)
-    db.read_transaction(
+    q = db.read_transaction(
         q_dataset_search.get_keywords_for_datasets,
         dataset_ids_on_page,
         datasets_dict,
         request_language
     )
-
+    t.append(datetime.now())
+    print(t[-1] - t[-2])
+    query_table.append({'title': 'get keywords for datasets on page', 'time': t[-1] - t[-2], 'query': q})
     datasets = list(datasets_dict.values())
     facets = {}
     search_facets = {}
     for facet_key in dataset_facet_keys:
-        search_facets[facet_key], facets[facet_key] = db.read_transaction(
+        q, search_facets[facet_key], facets[facet_key] = db.read_transaction(
             q_dataset_search.get_facets_for_datasets,
             filter_by_dataset_ids,
             filtered_search,
             facet_key
         )
+        t.append(datetime.now())
+        print(t[-1] - t[-2])
+        query_table.append({'title': f'get facet counts for facet {facet_key}', 'time': t[-1] - t[-2], 'query': q})
     for facet_key in facet_keys:
         search_facets[facet_key] = {'items': search_facets[facet_key],
                                     'title': facet_key}
+    df = pd.DataFrame(data=query_table)
+    print(df)
     return Response(json.dumps(
         {
             "help": request.url,
@@ -77,7 +104,7 @@ def dataset_search():
                 "count": count,
                 "sort": "core desc, metadata_modified desc",
                 "facets": facets,
-                "results": "ids",
+                "results": datasets,
                 "search_facets": search_facets
             }
         }), mimetype="application/json")
