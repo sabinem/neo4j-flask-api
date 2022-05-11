@@ -56,3 +56,34 @@ def map_organization_to_api(organization):
             organization_dict['name'] = v
     organization_dict['title'] = json.dumps(title_dict)
     return organization_dict
+
+
+def map_group_to_api(group):
+    group_dict = {}
+    title_dict = {}
+    for k, v in group.items():
+        if k.startswith('title_'):
+            title_dict[k.replace('title_', '')] = v
+        elif k == 'group_name':
+            group_dict['name'] = v
+    group_dict['display_name'] = title_dict
+    group_dict['title'] = title_dict
+    return group_dict
+
+
+def map_dataset_to_api(dataset):
+    dataset_dict = {}
+    title_dict = {}
+    description_dict = {}
+    for k, v in dataset.items():
+        if k.startswith('title_'):
+            title_dict[k.replace('title_', '')] = v
+        elif k.startswith('description_'):
+            description_dict[k.replace('description_', '')] = v
+        else:
+            dataset_dict[k] = v
+        if k == 'dataset_identifier':
+            dataset_dict['identifier'] = v
+    dataset_dict['title'] = title_dict
+    dataset_dict['description'] = description_dict
+    return dataset_dict
