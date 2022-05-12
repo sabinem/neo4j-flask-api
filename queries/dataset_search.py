@@ -16,6 +16,30 @@ map_facet_match_clause = {
     'keywords_fr': "MATCH (facet:KeywordFr)<-[:HAS_KEYWORD_FR]-(d:Dataset) ",
 }
 
+map_facet_to_property = {
+    'groups': "group_name",
+    'res_format': "format",
+    'organization': "organization_name",
+    'political_level': "political_level_name",
+    'res_rights': "right",
+    'keywords_de': "keyword_de",
+    'keywords_en': "keyword_en",
+    'keywords_it': "keyword_it",
+    'keywords_fr': "keyword_fr",
+}
+
+map_facet_items_label = {
+    'groups': "Group",
+    'res_format': "Format",
+    'organization': "Organization",
+    'political_level': "Level",
+    'res_rights': "TermsOfUse",
+    'keywords_de': "KeywordDe",
+    'keywords_en': "KeywordEn",
+    'keywords_it': "KeywordIt",
+    'keywords_fr': "KeywordFr",
+}
+
 
 def dataset_search(tx, facet_dict):
     print(f"--------- facet search: {facet_dict}")
@@ -129,29 +153,39 @@ def _add_organization_to_dataset(organization, dataset):
     return dataset_dict
 
 
-def get_facets_for_datasets(tx, filter_by_dataset_ids, filtered_search, facet_key):
+def get_facet_counts(tx, filter_by_dataset_ids, filtered_search, facet_key):
+    property = map_facet_to_property.get(facet_key)
     q = map_facet_match_clause[facet_key]
     q += _dataset_filter_clause(filter_by_dataset_ids, filtered_search)
-    q += "RETURN DISTINCT id(facet) as facet_id, d.dataset_identifier as dataset_id, facet"
+    q += f"RETURN facet.{property} as label, count(facet) as count"
     print(q)
     result = tx.run(q)
-    return q, *_map_facet_result(result, facet_key)
+    facet_dict = _map_facet_count_result(result)
+    return q, facet_dict
 
 
-def _map_facet_result(result, facet_key):
-    df = pd.DataFrame(result.data())
-    dg = df.groupby('facet_id').apply(lambda x: _prepare_facet_item(x, facet_key))
-    search_facets = dg.to_list()
-    return search_facets, _get_facets_from_search_facets(search_facets)
+def _map_facet_count_result(result):
+    df = pd.DataFrame.from_dict(result.data())
+    df.set_index('label', inplace=True)
+    return df['count'].to_dict()
 
 
-def _prepare_facet_item(df, facet_key):
-    count = (df.shape[0])
-    df = df.drop_duplicates("facet_id").drop(columns=['facet_id', 'dataset_id'])
-    facet_dict = df['facet'].squeeze()
-    facet_dict['count'] = count
-    facet = _map_facet(facet_dict, facet_key)
-    return facet
+def get_facet_items(tx, facet_key):
+    label = map_facet_items_label.get(facet_key)
+    property =map_facet_to_property.get(facet_key)
+    q = f"MATCH (facet:{label}) RETURN facet, facet.{property} as facet_id"
+    print(q)
+    result = tx.run(q)
+    facet_items_dict = _map_facet_items_result(result, facet_key)
+    return q, facet_items_dict
+
+
+def _map_facet_items_result(result, facet_key):
+    df = pd.DataFrame.from_dict(result.data())
+    df['facet'] = df['facet'].apply(lambda x: _map_facet(x, facet_key))
+    df = df.set_index('facet_id')
+    facet_item_dict = df['facet'].to_dict()
+    return facet_item_dict
 
 
 def _map_facet(facet_dict, facet_key):
@@ -180,12 +214,7 @@ def _map_facet(facet_dict, facet_key):
                 'it': facet_dict.get('title_it'),
             }
         )
-    facet['count'] = facet_dict['count']
     return facet
-
-
-def _get_facets_from_search_facets(search_facets):
-    return {item['name']: item['count'] for item in search_facets}
 
 
 def get_groups_for_datasets(tx, dataset_ids_on_page, dataset_dict):

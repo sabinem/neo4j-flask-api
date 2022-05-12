@@ -82,15 +82,24 @@ def dataset_search():
     facets = {}
     search_facets = {}
     for facet_key in dataset_facet_keys:
-        q, search_facets[facet_key], facets[facet_key] = db.read_transaction(
-            q_dataset_search.get_facets_for_datasets,
+        q, facets[facet_key] = db.read_transaction(
+            q_dataset_search.get_facet_counts,
             filter_by_dataset_ids,
             filtered_search,
             facet_key
         )
+        print(facets[facet_key])
         t.append(datetime.now())
         print(t[-1] - t[-2])
         query_table.append({'title': f'get facet counts for facet {facet_key}', 'time': t[-1] - t[-2], 'query': q})
+        q, facet_items = db.read_transaction(
+            q_dataset_search.get_facet_items,
+            facet_key
+        )
+        t.append(datetime.now())
+        print(t[-1] - t[-2])
+        query_table.append({'title': f'get facet items for facet {facet_key}', 'time': t[-1] - t[-2], 'query': q})
+        search_facets[facet_key] = utils.get_search_facets(facets[facet_key], facet_items, facet_key)
     for facet_key in facet_keys:
         search_facets[facet_key] = {'items': search_facets[facet_key],
                                     'title': facet_key}

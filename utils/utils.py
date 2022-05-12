@@ -9,3 +9,13 @@ def get_keyword_facet_key(facet_keys):
 
 def get_request_language(facet_keys):
     return get_keyword_facet_key(facet_keys)[1]
+
+
+def get_search_facets(facet_count, facet_item, facet_key):
+    search_facets = []
+    for label, count in facet_count.items():
+        item = facet_item[label]
+        item['count'] = count
+        print(item)
+        search_facets.append(item)
+    return search_facets
