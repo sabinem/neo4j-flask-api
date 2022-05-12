@@ -16,6 +16,5 @@ def get_search_facets(facet_count, facet_item, facet_key):
     for label, count in facet_count.items():
         item = facet_item[label]
         item['count'] = count
-        print(item)
         search_facets.append(item)
     return search_facets

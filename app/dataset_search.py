@@ -88,7 +88,6 @@ def dataset_search():
             filtered_search,
             facet_key
         )
-        print(facets[facet_key])
         t.append(datetime.now())
         print(t[-1] - t[-2])
         query_table.append({'title': f'get facet counts for facet {facet_key}', 'time': t[-1] - t[-2], 'query': q})
@@ -104,6 +103,8 @@ def dataset_search():
         search_facets[facet_key] = {'items': search_facets[facet_key],
                                     'title': facet_key}
     df = pd.DataFrame(data=query_table)
+
+    print("**********************************")
     print(df)
     return Response(json.dumps(
         {

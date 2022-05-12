@@ -41,6 +41,8 @@ def get_filter_by_ids_where_clause(condition, filter_by_ids):
 
 def map_search_result(result, filtered_search=True):
     df = pd.DataFrame(result.data())
+    if df.empty:
+        return 0, [], False
     count = str(df['count'].sum())
     filter_by_ids = df['id'].to_list()
     return count, filter_by_ids, filtered_search

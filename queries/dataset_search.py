@@ -87,12 +87,12 @@ def dataset_search(tx, facet_dict):
         search_facets.extend(facets)
     keyword_facet = utils.get_keyword_facet_key(fq_facet_keys)
     if keyword_facet:
-        facet = keyword_facet[0]
+        key = f"{keyword_facet[0]}_{keyword_facet[1]}"
         lang = keyword_facet[1]
         facets = query_builder.prepare_facets(
-            values=facet_dict[facet],
-            query=f"(d:Dataset)-[:HAS_KEYWORDS_{lang.upper()}]" + "->({}" +f"{facet})",
-            ids=['dist', 'f'],
+            values=facet_dict[key],
+            query=f"(d:Dataset)-[:HAS_KEYWORD_{lang.upper()}]" + "->({}" + f":Keyword{lang.capitalize()}) ",
+            ids=['k'],
             property='format',
         )
         search_facets.extend(facets)
@@ -259,7 +259,6 @@ r as resource
 
 def _map_resources_to_datasets(result, dataset_dict):
     df = pd.DataFrame(result.data())
-    print(df.describe())
     dg = df.groupby('dataset_id').apply(_resources_to_list)
     resources_for_dataset_dict = dg.to_dict()
     for dataset_identifier in dataset_dict.keys():
