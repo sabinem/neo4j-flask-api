@@ -1,6 +1,8 @@
 import json
 import pandas as pd
 from utils import query_builder
+from utils.decorators import log_query
+from utils.query_builder import QueryResult
 from utils import utils
 languages = ['de', 'fr', 'en', 'it']
 
@@ -41,8 +43,9 @@ map_facet_items_label = {
 }
 
 
+@log_query
 def dataset_search(tx, facet_dict):
-    print(f"--------- facet search: {facet_dict}")
+    """get filtered search result by facets in request fq parameter"""
     search_facets = []
     fq_facet_keys = facet_dict.keys()
     if 'groups' in fq_facet_keys:
@@ -101,24 +104,20 @@ def dataset_search(tx, facet_dict):
     if where_clause:
         q += where_clause
     q += "RETURN d.dataset_identifier as id, count(distinct d) as count"
-    print("\n----------------------------------------------------------------------------")
-    print(f"Query to retrieve datasets in facet search with {facet_dict}")
-    print("==============================================================================")
-    print(q)
-    print("----------------------------------------------------------------------------\n")
     result = tx.run(q)
-    return q, *query_builder.map_search_result(result, filtered_search=bool(search_facets))
+    return QueryResult(query=q, result=query_builder.map_search_result(result, filtered_search=bool(search_facets)))
 
 
+@log_query
 def get_query_search(tx, term, filter_by_dataset_ids, filtered_search):
+    """get search result for query term within filtered search result"""
     q = f"""
 CALL db.index.fulltext.queryNodes('dataset_de', '"{term}"') 
 YIELD node as dataset, score """
     q += _dataset_filter_clause(filter_by_dataset_ids, filtered_search)
     q += "RETURN dataset.dataset_identifier as id, count(dataset) as count"
-    print(q)
     result = tx.run(q)
-    return q, *query_builder.map_search_result(result)
+    return QueryResult(query=q, result=query_builder.map_search_result(result))
 
 
 def _dataset_filter_clause(filter_by_dataset_ids, filtered_search=True, condition='d.dataset_identifier'):
@@ -130,20 +129,17 @@ def _dataset_filter_clause(filter_by_dataset_ids, filtered_search=True, conditio
     )
 
 
+@log_query
 def get_datasets(tx, dataset_ids_on_page):
+    """get organizations for datasets on page"""
     q = f"""MATCH (o:Organization)<-[:BELONGS_TO]-(d:Dataset)"""
     q += _dataset_filter_clause(dataset_ids_on_page)
     q += f"""
 RETURN d.dataset_identifier as dataset_id, d as dataset, o as organization
 """
-    print("\n----------------------------------------------------------------------------")
-    print(f"Query to get datasets for {dataset_ids_on_page}")
-    print("==============================================================================")
-    print(q)
-    print("----------------------------------------------------------------------------\n")
     result = tx.run(q)
     dataset_dicts = _map_datasets_to_dict(result)
-    return q, dataset_dicts
+    return QueryResult(query=q, result=dataset_dicts)
 
 
 def _map_datasets_to_dict(result):
@@ -160,15 +156,16 @@ def _add_organization_to_dataset(organization, dataset):
     return dataset_dict
 
 
+@log_query
 def get_facet_counts(tx, filter_by_dataset_ids, filtered_search, facet_key):
+    """get facet counts for datasets in search result"""
     property = map_facet_to_property.get(facet_key)
     q = map_facet_match_clause[facet_key]
     q += _dataset_filter_clause(filter_by_dataset_ids, filtered_search)
     q += f"RETURN facet.{property} as label, count(facet) as count"
-    print(q)
     result = tx.run(q)
     facet_dict = _map_facet_count_result(result)
-    return q, facet_dict
+    return QueryResult(query=q, result=facet_dict)
 
 
 def _map_facet_count_result(result):
@@ -179,14 +176,14 @@ def _map_facet_count_result(result):
     return df['count'].to_dict()
 
 
+@log_query
 def get_facet_items(tx, facet_key):
     label = map_facet_items_label.get(facet_key)
     property =map_facet_to_property.get(facet_key)
     q = f"MATCH (facet:{label}) RETURN facet, facet.{property} as facet_id"
-    print(q)
     result = tx.run(q)
     facet_items_dict = _map_facet_items_result(result, facet_key)
-    return q, facet_items_dict
+    return QueryResult(query=q, result=facet_items_dict)
 
 
 def _map_facet_items_result(result, facet_key):
@@ -226,17 +223,18 @@ def _map_facet(facet_dict, facet_key):
     return facet
 
 
+@log_query
 def get_groups_for_datasets(tx, dataset_ids_on_page, dataset_dict):
+    """get categories for datasets on page"""
     q = f"MATCH (g:Group)<-[:HAS_THEME]-(d:Dataset) "
     q += _dataset_filter_clause(dataset_ids_on_page)
     q += f"""
 RETURN d.dataset_identifier as dataset_id,
 g as group, g.group_name as group_id
 """
-    print(q)
     result = tx.run(q)
     _map_groups_to_datasets(result, dataset_dict)
-    return q
+    return QueryResult(query=q, result=None)
 
 
 def _map_groups_to_datasets(result, dataset_dict):
@@ -253,17 +251,18 @@ def _categories_to_list(df):
     return df['group'].to_list()
 
 
+@log_query
 def get_resources_for_datasets(tx, dataset_ids_on_page, dataset_dict):
+    """get distributions for datasets on page"""
     q = f"MATCH (f:Format)<-[:HAS_FORMAT]-(r:Distribution)<-[:HAS_DISTRIBUTION]-(d:Dataset) "
     q += _dataset_filter_clause(dataset_ids_on_page)
     q += f"""
 RETURN d.dataset_identifier as dataset_id, r.distribution_id as resource_id, f.format as format,
 r as resource
 """
-    print(q)
     result = tx.run(q)
     _map_resources_to_datasets(result, dataset_dict)
-    return q
+    return QueryResult(query=q, result=None)
 
 
 def _map_resources_to_datasets(result, dataset_dict):
@@ -284,7 +283,9 @@ def _add_format_to_resource(resource, format):
     return resource
 
 
+@log_query
 def get_keywords_for_datasets(tx, dataset_ids_on_page, dataset_dict, language):
+    """get keywords in request language for datasets on page"""
     keyword_property = f"keyword_{language}"
     keyword_label = f"Keyword{language.capitalize()}"
     relationship = f":HAS_KEYWORD_{language.upper()}"
@@ -294,10 +295,9 @@ def get_keywords_for_datasets(tx, dataset_ids_on_page, dataset_dict, language):
 RETURN d.dataset_identifier as dataset_id, d as dataset,
 k.{keyword_property} as keyword
 """
-    print(q)
     result = tx.run(q)
     _map_keywords_to_datasets(result, dataset_dict, language)
-    return q
+    return QueryResult(query=q, result=None)
 
 
 def _map_keywords_to_datasets(result, dataset_dict, language):

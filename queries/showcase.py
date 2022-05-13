@@ -1,8 +1,12 @@
 import json
 import pandas as pd
+from utils.decorators import log_query
+from utils.query_builder import QueryResult
 
 
+@log_query
 def get_showcase(tx, id):
+    """get one showcase given by its id"""
     q = f"""
 MATCH (a:Applicationtype)<-[:HAS_APPLICATION_TYPE]-(s:Showcase)-[:HAS_GROUP]->(g:Group),
 (s:Showcase)-[]->(t:Tag), (s:Showcase)-[:USES_DATASET]-(d:Dataset)
@@ -11,9 +15,8 @@ RETURN s as showcase, a.application_type_name as showcase_type, g as group, g.gr
 t.tag_name as tag, count(d) as num_datasets, d as dataset, s.showcase_name as showcase_id, 
 d.dataset_identifier as dataset_id
 """
-    print(q)
     result = tx.run(q)
-    return _map_showcase_result(result)
+    return QueryResult(query=q, result=_map_showcase_result(result))
 
 
 def _map_showcase_result(result):

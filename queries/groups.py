@@ -1,14 +1,17 @@
 import pandas as pd
+from utils.decorators import log_query
+from utils.query_builder import QueryResult
 
 
+@log_query
 def get_categories_with_titles_and_counts(tx):
+    """get categories with titles and counts"""
     q = """
 MATCH (g:Group) <-[:HAS_THEME]-(d:Dataset) 
 RETURN count(d) as count, g, g.group_name as name
 """
-    print(q)
     result = tx.run(q)
-    return _map_count_result(result)
+    return QueryResult(query=q, result=_map_count_result(result))
 
 
 def _map_count_result(result):
