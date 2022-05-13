@@ -178,6 +178,7 @@ def _map_facet_count_result(result):
 
 @log_query
 def get_facet_items(tx, facet_key):
+    """get facet items for all search facets"""
     label = map_facet_items_label.get(facet_key)
     property =map_facet_to_property.get(facet_key)
     q = f"MATCH (facet:{label}) RETURN facet, facet.{property} as facet_id"
