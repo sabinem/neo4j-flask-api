@@ -12,7 +12,7 @@ dataset_facet_keys = ['groups', 'res_format', 'keywords_de', 'organization', 'po
 
 @app.route("/dataset-search")
 def dataset_search():
-    print("REQUEST-------------------------------------------------")
+    print("\n\n\nREQUEST-------------------------------------------------")
     print(request)
     print("--------------------------------------------------------")
     print(datetime.now())

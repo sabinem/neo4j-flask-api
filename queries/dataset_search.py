@@ -93,16 +93,19 @@ def dataset_search(tx, facet_dict):
             values=facet_dict[key],
             query=f"(d:Dataset)-[:HAS_KEYWORD_{lang.upper()}]" + "->({}" + f":Keyword{lang.capitalize()}) ",
             ids=['k'],
-            property='format',
+            property=f'keyword_{lang}',
         )
         search_facets.extend(facets)
     q = query_builder.get_facet_match_clause(search_facets, "d", "Dataset")
     where_clause = query_builder.get_facet_where_clause(search_facets)
     if where_clause:
         q += where_clause
-    q += "RETURN d.dataset_identifier as id, count(d) as count"
-    print(f"\nRetrieve datasets in facet search {facet_dict}\n")
+    q += "RETURN d.dataset_identifier as id, count(distinct d) as count"
+    print("\n----------------------------------------------------------------------------")
+    print(f"Query to retrieve datasets in facet search with {facet_dict}")
+    print("==============================================================================")
     print(q)
+    print("----------------------------------------------------------------------------\n")
     result = tx.run(q)
     return q, *query_builder.map_search_result(result, filtered_search=bool(search_facets))
 
@@ -133,7 +136,11 @@ def get_datasets(tx, dataset_ids_on_page):
     q += f"""
 RETURN d.dataset_identifier as dataset_id, d as dataset, o as organization
 """
+    print("\n----------------------------------------------------------------------------")
+    print(f"Query to get datasets for {dataset_ids_on_page}")
+    print("==============================================================================")
     print(q)
+    print("----------------------------------------------------------------------------\n")
     result = tx.run(q)
     dataset_dicts = _map_datasets_to_dict(result)
     return q, dataset_dicts
@@ -166,6 +173,8 @@ def get_facet_counts(tx, filter_by_dataset_ids, filtered_search, facet_key):
 
 def _map_facet_count_result(result):
     df = pd.DataFrame.from_dict(result.data())
+    if df.empty:
+        return {}
     df.set_index('label', inplace=True)
     return df['count'].to_dict()
 
@@ -293,6 +302,8 @@ k.{keyword_property} as keyword
 
 def _map_keywords_to_datasets(result, dataset_dict, language):
     df = pd.DataFrame(result.data())
+    if df.empty:
+        return
     dg = df.groupby('dataset_id').apply(_keywords_to_list)
     keywords_for_dataset_dict = dg.to_dict()
     for dataset_identifier in dataset_dict.keys():
