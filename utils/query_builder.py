@@ -3,6 +3,7 @@ import pandas as pd
 from collections import namedtuple
 
 Facet = namedtuple('Facet', ['query', 'ids', 'property', 'value'])
+QueryResult = namedtuple('QueryResult', ['query', 'result'])
 
 
 def prepare_facets(values, query, ids, property):
