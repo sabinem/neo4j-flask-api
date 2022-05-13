@@ -5,7 +5,7 @@ from utils.query_builder import QueryResult
 
 @log_query
 def get_group_counts(tx):
-    """get categories with counts of datasets per category"""
+    """get categories with names and counts"""
     q = """
 MATCH (g:Group) <-[:HAS_THEME]-(d:Dataset) 
 RETURN count(d) as count, g.group_name as label

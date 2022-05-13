@@ -1,14 +1,17 @@
 import pandas as pd
 from utils import query_builder
+from utils.decorators import log_query
+from utils.query_builder import QueryResult
 
 
+@log_query
 def get_organization_list(tx):
+    """get organization tree"""
     q = """
 MATCH(o: Organization) 
 OPTIONAL MATCH(o: Organization)-[: HAS_PARENT]->(po:Organization)
 RETURN po.organization_name as po_id, o.organization_name as o_id, o as organization
 """
-    print(q)
     result = tx.run(q)
     return _map_organization_list_result(result)
 
